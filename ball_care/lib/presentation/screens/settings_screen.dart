@@ -8,7 +8,8 @@ import '../widgets/styled_form_field.dart';
 import 'dart:convert';
 import 'package:file_picker/file_picker.dart';
 // Conditional imports for web vs mobile
-import 'dart:io' if (dart.library.html) 'dart:html' as platform;
+import 'settings_screen_stub.dart'
+    if (dart.library.html) 'settings_screen_web.dart';
 
 class SettingsScreen extends ConsumerStatefulWidget {
   const SettingsScreen({super.key});
@@ -141,9 +142,14 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
 
       if (kIsWeb) {
         // Web-specific export using dart:html
-        _exportDataWeb(jsonString);
+        exportDataWeb(jsonString);
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Data exported successfully')),
+          );
+        }
       } else {
-        // Mobile/Desktop export - show export dialog
+        // Mobile/Desktop export - show message
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
@@ -159,28 +165,6 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
           SnackBar(content: Text('Export failed: $e')),
         );
       }
-    }
-  }
-
-  void _exportDataWeb(String jsonString) {
-    // This will only be called on web platform
-    final bytes = utf8.encode(jsonString);
-    // Using dynamic to avoid compile-time type issues
-    final blob = (platform as dynamic).Blob([bytes]);
-    final url = (platform as dynamic).Url.createObjectUrlFromBlob(blob);
-    final anchor = (platform as dynamic).document.createElement('a')
-      ..href = url
-      ..style.display = 'none'
-      ..download = 'ballcare_backup_${DateTime.now().millisecondsSinceEpoch}.json';
-    (platform as dynamic).document.body?.children.add(anchor);
-    anchor.click();
-    (platform as dynamic).document.body?.children.remove(anchor);
-    (platform as dynamic).Url.revokeObjectUrl(url);
-
-    if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Data exported successfully')),
-      );
     }
   }
 
