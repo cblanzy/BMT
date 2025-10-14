@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:drift/drift.dart' hide Column;
+import 'package:image_picker/image_picker.dart';
 import '../../core/constants/app_constants.dart';
 import '../../data/database/database.dart';
 import '../../data/providers/providers.dart';
@@ -30,6 +31,9 @@ class _EditBallScreenState extends ConsumerState<EditBallScreen> {
   final _diffAfterController = TextEditingController();
   final _papOverController = TextEditingController();
   final _papUpController = TextEditingController();
+  final _deepCleanGamesController = TextEditingController();
+  final _oilExtractGamesController = TextEditingController();
+  final _resurfaceGamesController = TextEditingController();
 
   String? _selectedCoverstock;
   double? _selectedWeight;
@@ -38,6 +42,10 @@ class _EditBallScreenState extends ConsumerState<EditBallScreen> {
   String? _imageData;
   bool _showAdvancedSpecs = false;
   bool _showPapConfig = false;
+  bool _showMaintenanceOverride = false;
+  bool _useCustomDeepClean = false;
+  bool _useCustomOilExtract = false;
+  bool _useCustomResurface = false;
   bool _isSaving = false;
   bool _isLoading = true;
   Ball? _originalBall;
@@ -60,6 +68,9 @@ class _EditBallScreenState extends ConsumerState<EditBallScreen> {
     _diffAfterController.dispose();
     _papOverController.dispose();
     _papUpController.dispose();
+    _deepCleanGamesController.dispose();
+    _oilExtractGamesController.dispose();
+    _resurfaceGamesController.dispose();
     super.dispose();
   }
 
@@ -90,6 +101,9 @@ class _EditBallScreenState extends ConsumerState<EditBallScreen> {
         _diffAfterController.text = ball.diffAfter?.toString() ?? '';
         _papOverController.text = ball.papOver?.toString() ?? '';
         _papUpController.text = ball.papUp?.toString() ?? '';
+        _deepCleanGamesController.text = ball.deepCleanGames?.toString() ?? '';
+        _oilExtractGamesController.text = ball.oilExtractGames?.toString() ?? '';
+        _resurfaceGamesController.text = ball.resurfaceGames?.toString() ?? '';
         _selectedCoverstock = ball.coverstock;
         _selectedWeight = ball.weightLb;
         _selectedPapUnit = ball.papUnit ?? 'in';
@@ -99,6 +113,12 @@ class _EditBallScreenState extends ConsumerState<EditBallScreen> {
                             ball.rgAfter != null || ball.diffAfter != null;
         _showPapConfig = ball.papOver != null || ball.papUp != null ||
                         ball.papHand != null;
+        _showMaintenanceOverride = ball.deepCleanGames != null ||
+                                   ball.oilExtractGames != null ||
+                                   ball.resurfaceGames != null;
+        _useCustomDeepClean = ball.deepCleanGames != null;
+        _useCustomOilExtract = ball.oilExtractGames != null;
+        _useCustomResurface = ball.resurfaceGames != null;
         _isLoading = false;
       });
     } catch (e) {
@@ -113,15 +133,52 @@ class _EditBallScreenState extends ConsumerState<EditBallScreen> {
     }
   }
 
-  Future<void> _pickImage() async {
-    final imageService = ref.read(imageServiceProvider);
-    final pickedFile = await imageService.pickImage();
-    if (pickedFile != null) {
-      final processedImage = await imageService.processImage(pickedFile);
-      setState(() {
-        _imageData = processedImage;
-      });
+  Future<void> _showImageSourceDialog() async {
+    final result = await showDialog<String>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Add Photo'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ListTile(
+                leading: const Icon(Icons.camera_alt),
+                title: const Text('Take Photo'),
+                onTap: () => Navigator.pop(context, 'camera'),
+              ),
+              ListTile(
+                leading: const Icon(Icons.photo_library),
+                title: const Text('Choose from Gallery'),
+                onTap: () => Navigator.pop(context, 'gallery'),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+
+    if (result != null) {
+      final imageService = ref.read(imageServiceProvider);
+      XFile? pickedFile;
+
+      if (result == 'camera') {
+        pickedFile = await imageService.takePhoto();
+      } else {
+        pickedFile = await imageService.pickImage();
+      }
+
+      if (pickedFile != null) {
+        final processedImage = await imageService.processImage(pickedFile);
+        setState(() {
+          _imageData = processedImage;
+        });
+      }
     }
+  }
+
+  Future<void> _pickImage() async {
+    await _showImageSourceDialog();
   }
 
   Future<void> _saveBall() async {
@@ -160,6 +217,9 @@ class _EditBallScreenState extends ConsumerState<EditBallScreen> {
         weightLb: Value(_selectedWeight),
         serial: Value(serialValue.isEmpty ? null : serialValue),
         imageBase64: Value(_imageData),
+        deepCleanGames: Value(_useCustomDeepClean && _deepCleanGamesController.text.trim().isNotEmpty ? int.tryParse(_deepCleanGamesController.text.trim()) : null),
+        oilExtractGames: Value(_useCustomOilExtract && _oilExtractGamesController.text.trim().isNotEmpty ? int.tryParse(_oilExtractGamesController.text.trim()) : null),
+        resurfaceGames: Value(_useCustomResurface && _resurfaceGamesController.text.trim().isNotEmpty ? int.tryParse(_resurfaceGamesController.text.trim()) : null),
         updatedAt: now,
       );
 
@@ -441,6 +501,147 @@ class _EditBallScreenState extends ConsumerState<EditBallScreen> {
                             });
                           },
                         ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 8),
+
+            // Maintenance Schedule Override (collapsible)
+            Card(
+              child: ExpansionTile(
+                title: const Text('Maintenance Schedule Override'),
+                initiallyExpanded: _showMaintenanceOverride,
+                onExpansionChanged: (expanded) {
+                  setState(() {
+                    _showMaintenanceOverride = expanded;
+                  });
+                },
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Override the default maintenance schedules for this specific ball. Leave unchecked to use global defaults.',
+                          style: TextStyle(
+                            fontSize: 13,
+                            color: Colors.grey[600],
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                        // Deep Clean Override
+                        CheckboxListTile(
+                          title: const Text('Custom Deep Clean Schedule'),
+                          value: _useCustomDeepClean,
+                          onChanged: (value) {
+                            setState(() {
+                              _useCustomDeepClean = value ?? false;
+                              if (!_useCustomDeepClean) {
+                                _deepCleanGamesController.clear();
+                              }
+                            });
+                          },
+                          controlAffinity: ListTileControlAffinity.leading,
+                          contentPadding: EdgeInsets.zero,
+                        ),
+                        if (_useCustomDeepClean) ...[
+                          StyledFormField(
+                            controller: _deepCleanGamesController,
+                            labelText: 'Deep Clean Games',
+                            hintText: 'Default: 18 games',
+                            keyboardType: const TextInputType.numberWithOptions(decimal: false),
+                            validator: (value) {
+                              if (_useCustomDeepClean && (value == null || value.trim().isEmpty)) {
+                                return 'Please enter a value or uncheck the override';
+                              }
+                              if (value != null && value.trim().isNotEmpty) {
+                                final parsed = int.tryParse(value.trim());
+                                if (parsed == null || parsed <= 0) {
+                                  return 'Please enter a valid positive number';
+                                }
+                              }
+                              return null;
+                            },
+                          ),
+                          const SizedBox(height: 16),
+                        ],
+
+                        // Oil Extract Override
+                        CheckboxListTile(
+                          title: const Text('Custom Oil Extract Schedule'),
+                          value: _useCustomOilExtract,
+                          onChanged: (value) {
+                            setState(() {
+                              _useCustomOilExtract = value ?? false;
+                              if (!_useCustomOilExtract) {
+                                _oilExtractGamesController.clear();
+                              }
+                            });
+                          },
+                          controlAffinity: ListTileControlAffinity.leading,
+                          contentPadding: EdgeInsets.zero,
+                        ),
+                        if (_useCustomOilExtract) ...[
+                          StyledFormField(
+                            controller: _oilExtractGamesController,
+                            labelText: 'Oil Extract Games',
+                            hintText: 'Default: 70 games',
+                            keyboardType: const TextInputType.numberWithOptions(decimal: false),
+                            validator: (value) {
+                              if (_useCustomOilExtract && (value == null || value.trim().isEmpty)) {
+                                return 'Please enter a value or uncheck the override';
+                              }
+                              if (value != null && value.trim().isNotEmpty) {
+                                final parsed = int.tryParse(value.trim());
+                                if (parsed == null || parsed <= 0) {
+                                  return 'Please enter a valid positive number';
+                                }
+                              }
+                              return null;
+                            },
+                          ),
+                          const SizedBox(height: 16),
+                        ],
+
+                        // Resurface Override
+                        CheckboxListTile(
+                          title: const Text('Custom Resurface Schedule'),
+                          value: _useCustomResurface,
+                          onChanged: (value) {
+                            setState(() {
+                              _useCustomResurface = value ?? false;
+                              if (!_useCustomResurface) {
+                                _resurfaceGamesController.clear();
+                              }
+                            });
+                          },
+                          controlAffinity: ListTileControlAffinity.leading,
+                          contentPadding: EdgeInsets.zero,
+                        ),
+                        if (_useCustomResurface) ...[
+                          StyledFormField(
+                            controller: _resurfaceGamesController,
+                            labelText: 'Resurface Games',
+                            hintText: 'Default: varies by coverstock',
+                            keyboardType: const TextInputType.numberWithOptions(decimal: false),
+                            validator: (value) {
+                              if (_useCustomResurface && (value == null || value.trim().isEmpty)) {
+                                return 'Please enter a value or uncheck the override';
+                              }
+                              if (value != null && value.trim().isNotEmpty) {
+                                final parsed = int.tryParse(value.trim());
+                                if (parsed == null || parsed <= 0) {
+                                  return 'Please enter a valid positive number';
+                                }
+                              }
+                              return null;
+                            },
+                          ),
+                        ],
                       ],
                     ),
                   ),

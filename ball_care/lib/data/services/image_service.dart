@@ -6,7 +6,7 @@ import 'dart:io' show File;
 class ImageService {
   final ImagePicker _picker = ImagePicker();
 
-  // Pick image from device
+  // Pick image from gallery
   Future<XFile?> pickImage() async {
     try {
       final XFile? image = await _picker.pickImage(
@@ -18,6 +18,23 @@ class ImageService {
       return image;
     } catch (e) {
       print('Error picking image: $e');
+      return null;
+    }
+  }
+
+  // Take photo with camera
+  Future<XFile?> takePhoto() async {
+    try {
+      final XFile? image = await _picker.pickImage(
+        source: ImageSource.camera,
+        maxWidth: 800,
+        maxHeight: 800,
+        imageQuality: 85,
+        preferredCameraDevice: CameraDevice.rear,
+      );
+      return image;
+    } catch (e) {
+      print('Error taking photo: $e');
       return null;
     }
   }
