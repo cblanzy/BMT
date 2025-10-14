@@ -113,10 +113,13 @@ class _AddGameLogScreenState extends ConsumerState<AddGameLogScreen> {
       final now = DateTime.now().millisecondsSinceEpoch;
       final uuid = const Uuid();
 
+      // Normalize the date to midnight (start of day) to ensure proper comparison
+      final normalizedDate = DateTime(_selectedDate.year, _selectedDate.month, _selectedDate.day);
+
       final log = GameLogsCompanion.insert(
         logId: uuid.v4(),
         ballId: widget.ballId,
-        date: _selectedDate.millisecondsSinceEpoch,
+        date: normalizedDate.millisecondsSinceEpoch,
         center: Value(_centerController.text.trim().isEmpty ? null : _centerController.text.trim()),
         games: double.parse(_gamesController.text.trim()),
         notes: Value(_notesController.text.trim().isEmpty ? null : _notesController.text.trim()),

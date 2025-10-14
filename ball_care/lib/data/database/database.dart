@@ -143,15 +143,20 @@ class AppDatabase extends _$AppDatabase {
 
     final lastMaintenance = await maintenanceQuery.getSingleOrNull();
 
-    // 2. Determine cutoff date
+    // 2. Determine cutoff date and normalize to start of day
     int cutoffDate;
     if (lastMaintenance != null) {
-      cutoffDate = lastMaintenance.date;
+      // Normalize maintenance date to start of day for fair comparison
+      final maintenanceDateTime = DateTime.fromMillisecondsSinceEpoch(lastMaintenance.date);
+      final normalizedMaintenance = DateTime(maintenanceDateTime.year, maintenanceDateTime.month, maintenanceDateTime.day);
+      cutoffDate = normalizedMaintenance.millisecondsSinceEpoch;
     } else {
-      // Use ball creation date if no maintenance found
+      // Use ball creation date if no maintenance found (normalized to start of day)
       final ballQuery = select(balls)..where((tbl) => tbl.ballId.equals(ballId));
       final ball = await ballQuery.getSingle();
-      cutoffDate = ball.createdAt;
+      final createdDateTime = DateTime.fromMillisecondsSinceEpoch(ball.createdAt);
+      final normalizedCreated = DateTime(createdDateTime.year, createdDateTime.month, createdDateTime.day);
+      cutoffDate = normalizedCreated.millisecondsSinceEpoch;
     }
 
     // 3. Sum all games where date >= cutoff (IMPORTANT: use >= not >)
