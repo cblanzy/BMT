@@ -1,0 +1,29 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(dir)",
+      "Bash(flutter create:*)",
+      "Bash(flutter pub:*)",
+      "Bash(dart run build_runner build:*)",
+      "Bash(flutter analyze:*)",
+      "Bash(flutter run:*)",
+      "Bash(timeout:*)",
+      "Bash(taskkill:*)",
+      "WebSearch",
+      "WebFetch(domain:drift.simonbinder.eu)",
+      "Bash(curl:*)",
+      "WebFetch(domain:github.com)",
+      "WebFetch(domain:api.github.com)",
+      "Bash(dir:*)",
+      "Bash(ren:*)",
+      "Bash(move backround.png background.png)",
+      "Bash(copy backround.png background.png)",
+      "Bash(del backround.png)",
+      "Bash(flutter:*)",
+      "Bash(git config:*)",
+      "Bash(git add:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}
