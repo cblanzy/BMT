@@ -79,7 +79,11 @@ class _BallDetailWithTabsState extends ConsumerState<_BallDetailWithTabs> with S
           stream: maintenanceRepository.watchMaintenanceForBall(widget.ball.ballId),
           builder: (context, maintenanceSnapshot) {
             // Whenever logs or maintenance change, fetch new statuses
+            // Use a key based on data length to force FutureBuilder to rebuild
+            final logsCount = gameLogsSnapshot.data?.length ?? 0;
+            final maintenanceCount = maintenanceSnapshot.data?.length ?? 0;
             return FutureBuilder<Map<MaintenanceType, MaintenanceStatus>>(
+              key: ValueKey('$logsCount-$maintenanceCount'),
               future: ballRepository.getAllMaintenanceStatuses(widget.ball.ballId),
               builder: (context, statusSnapshot) {
                 if (statusSnapshot.connectionState == ConnectionState.waiting) {
