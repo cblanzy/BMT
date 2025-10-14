@@ -24,7 +24,47 @@ class _AddGameLogScreenState extends ConsumerState<AddGameLogScreen> {
   final _notesController = TextEditingController();
 
   DateTime _selectedDate = DateTime.now();
+  DateTime? _earliestAllowedDate;
   bool _isSaving = false;
+  bool _isLoadingDateConstraints = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadDateConstraints();
+  }
+
+  Future<void> _loadDateConstraints() async {
+    try {
+      final maintenanceRepository = ref.read(maintenanceRepositoryProvider);
+      final records = await maintenanceRepository.getMaintenanceForBall(widget.ballId);
+
+      if (records.isNotEmpty) {
+        // Find the most recent maintenance date across all types
+        final mostRecentMaintenance = records.reduce((a, b) =>
+          a.date > b.date ? a : b
+        );
+        _earliestAllowedDate = DateTime.fromMillisecondsSinceEpoch(mostRecentMaintenance.date);
+      } else {
+        // No maintenance history - allow games up to 30 days in the past
+        _earliestAllowedDate = DateTime.now().subtract(const Duration(days: 30));
+      }
+
+      if (mounted) {
+        setState(() {
+          _isLoadingDateConstraints = false;
+        });
+      }
+    } catch (e) {
+      // If there's an error, default to 30 days in the past
+      if (mounted) {
+        setState(() {
+          _earliestAllowedDate = DateTime.now().subtract(const Duration(days: 30));
+          _isLoadingDateConstraints = false;
+        });
+      }
+    }
+  }
 
   @override
   void dispose() {
@@ -35,11 +75,23 @@ class _AddGameLogScreenState extends ConsumerState<AddGameLogScreen> {
   }
 
   Future<void> _selectDate(BuildContext context) async {
+    if (_isLoadingDateConstraints) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Loading date constraints...')),
+      );
+      return;
+    }
+
+    final firstDate = _earliestAllowedDate ?? DateTime.now().subtract(const Duration(days: 30));
+
     final DateTime? picked = await showDatePicker(
       context: context,
       initialDate: _selectedDate,
-      firstDate: DateTime(2000),
+      firstDate: firstDate,
       lastDate: DateTime.now(),
+      helpText: 'Select game date',
+      errorFormatText: 'Invalid date format',
+      fieldLabelText: 'Game date',
     );
     if (picked != null && picked != _selectedDate) {
       setState(() {
