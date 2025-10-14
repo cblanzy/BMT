@@ -54,3 +54,6 @@ app.*.map.json
 *.db
 *.sqlite
 *.sqlite3
+
+# Claude Code settings (contains tokens)
+.claude/settings.local.json

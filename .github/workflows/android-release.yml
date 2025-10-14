@@ -1,0 +1,83 @@
+name: Build and Release Android APK
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+jobs:
+  build-android:
+    name: Build Android APK
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'zulu'
+          java-version: '17'
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.35.6'
+          channel: 'stable'
+          cache: true
+
+      - name: Get dependencies
+        working-directory: ./ball_care
+        run: flutter pub get
+
+      - name: Build APK
+        working-directory: ./ball_care
+        run: flutter build apk --release
+
+      - name: Get version from pubspec
+        id: version
+        working-directory: ./ball_care
+        run: |
+          VERSION=$(grep 'version:' pubspec.yaml | cut -d ' ' -f 2 | cut -d '+' -f 1)
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "Building version: $VERSION"
+
+      - name: Rename APK
+        run: |
+          mkdir -p release
+          cp ball_care/build/app/outputs/flutter-apk/app-release.apk release/BallCare-${{ steps.version.outputs.version }}.apk
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: ${{ github.ref_name }}
+          name: Ball Maintenance Tracker ${{ steps.version.outputs.version }}
+          body: |
+            ## Ball Maintenance Tracker v${{ steps.version.outputs.version }}
+
+            ### Downloads
+            - **Android APK**: Download `BallCare-${{ steps.version.outputs.version }}.apk` below
+            - **Web App**: [https://cblanzy.github.io/BMT/](https://cblanzy.github.io/BMT/)
+
+            ### Installation
+            1. Download the APK file
+            2. Enable "Install from Unknown Sources" in your Android settings
+            3. Open the downloaded APK file to install
+
+            ### What's New
+            See commit history for details on this release.
+          files: |
+            release/*.apk
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload APK artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-apk
+          path: release/*.apk
+          retention-days: 30

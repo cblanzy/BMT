@@ -30,8 +30,8 @@ android {
         applicationId = "com.ballcare.tracker"
         minSdk = 21
         targetSdk = 34
-        versionCode = 1
-        versionName = "1.1.004"
+        versionCode = 9
+        versionName = "1.1.009"
     }
 
     signingConfigs {
