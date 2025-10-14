@@ -6,6 +6,7 @@ import 'package:drift/drift.dart';
 import '../../data/database/database.dart';
 import '../../data/providers/providers.dart';
 import '../widgets/background_image.dart';
+import '../widgets/styled_form_field.dart';
 
 class AddGameLogScreen extends ConsumerStatefulWidget {
   final String ballId;
@@ -111,16 +112,19 @@ class _AddGameLogScreenState extends ConsumerState<AddGameLogScreen> {
                 ),
               ),
             )
-          else
+          else ...[
+            TextButton(
+              onPressed: () => context.go('/ball/${widget.ballId}'),
+              child: const Text('CANCEL'),
+            ),
             TextButton(
               onPressed: _saveLog,
               child: const Text('SAVE'),
             ),
+          ],
         ],
       ),
       body: BackgroundImage(
-        opacity: 0.12,
-        overlayOpacity: 0.4,
         child: Form(
           key: _formKey,
           child: ListView(
@@ -139,23 +143,17 @@ class _AddGameLogScreenState extends ConsumerState<AddGameLogScreen> {
             const SizedBox(height: 16),
 
             // Bowling Center
-            TextFormField(
+            StyledFormField(
               controller: _centerController,
-              decoration: const InputDecoration(
-                labelText: 'Bowling Center',
-                border: OutlineInputBorder(),
-              ),
+              labelText: 'Bowling Center',
             ),
             const SizedBox(height: 16),
 
             // Number of Games
-            TextFormField(
+            StyledFormField(
               controller: _gamesController,
-              decoration: const InputDecoration(
-                labelText: 'Number of Games *',
-                border: OutlineInputBorder(),
-                helperText: 'Use decimals for partial games (e.g., 2.5)',
-              ),
+              labelText: 'Number of Games *',
+              helperText: 'Use decimals for partial games (e.g., 2.5)',
               keyboardType: const TextInputType.numberWithOptions(decimal: true),
               validator: (value) {
                 if (value == null || value.trim().isEmpty) {
@@ -171,12 +169,9 @@ class _AddGameLogScreenState extends ConsumerState<AddGameLogScreen> {
             const SizedBox(height: 16),
 
             // Notes
-            TextFormField(
+            StyledFormField(
               controller: _notesController,
-              decoration: const InputDecoration(
-                labelText: 'Notes',
-                border: OutlineInputBorder(),
-              ),
+              labelText: 'Notes',
               maxLines: 3,
             ),
           ],

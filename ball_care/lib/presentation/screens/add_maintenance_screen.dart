@@ -7,6 +7,7 @@ import '../../data/database/database.dart';
 import '../../data/providers/providers.dart';
 import '../../data/models/maintenance_status.dart';
 import '../widgets/background_image.dart';
+import '../widgets/styled_form_field.dart';
 
 class AddMaintenanceScreen extends ConsumerStatefulWidget {
   final String ballId;
@@ -115,28 +116,28 @@ class _AddMaintenanceScreenState extends ConsumerState<AddMaintenanceScreen> {
                 ),
               ),
             )
-          else
+          else ...[
+            TextButton(
+              onPressed: () => context.go('/ball/${widget.ballId}'),
+              child: const Text('CANCEL'),
+            ),
             TextButton(
               onPressed: _saveMaintenance,
               child: const Text('SAVE'),
             ),
+          ],
         ],
       ),
       body: BackgroundImage(
-        opacity: 0.12,
-        overlayOpacity: 0.4,
         child: Form(
           key: _formKey,
           child: ListView(
             padding: const EdgeInsets.all(16),
             children: [
             // Type
-            DropdownButtonFormField<MaintenanceType>(
+            StyledDropdownFormField<MaintenanceType>(
               value: _selectedType,
-              decoration: const InputDecoration(
-                labelText: 'Maintenance Type *',
-                border: OutlineInputBorder(),
-              ),
+              labelText: 'Maintenance Type *',
               items: MaintenanceType.values.map((type) {
                 return DropdownMenuItem(
                   value: type,
@@ -168,25 +169,19 @@ class _AddMaintenanceScreenState extends ConsumerState<AddMaintenanceScreen> {
             const SizedBox(height: 16),
 
             // Notes
-            TextFormField(
+            StyledFormField(
               controller: _notesController,
-              decoration: const InputDecoration(
-                labelText: 'Notes',
-                border: OutlineInputBorder(),
-              ),
+              labelText: 'Notes',
               maxLines: 3,
             ),
             const SizedBox(height: 16),
 
             // Grit Sequence (only for resurface)
             if (_selectedType == MaintenanceType.resurface)
-              TextFormField(
+              StyledFormField(
                 controller: _gritSequenceController,
-                decoration: const InputDecoration(
-                  labelText: 'Grit Sequence',
-                  hintText: '500, 1000, 2000, polish',
-                  border: OutlineInputBorder(),
-                ),
+                labelText: 'Grit Sequence',
+                hintText: '500, 1000, 2000, polish',
               ),
           ],
         ),

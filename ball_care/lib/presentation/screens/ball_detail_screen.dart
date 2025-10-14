@@ -198,6 +198,16 @@ class _BallDetailWithTabsState extends ConsumerState<_BallDetailWithTabs> with S
           // Header with image and progress rings
           Container(
             padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: Theme.of(context).cardColor,
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.05),
+                  blurRadius: 4,
+                  offset: const Offset(0, 2),
+                ),
+              ],
+            ),
             child: Column(
               children: [
                 Row(

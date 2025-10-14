@@ -8,6 +8,7 @@ import '../../core/constants/app_constants.dart';
 import '../../data/database/database.dart';
 import '../../data/providers/providers.dart';
 import '../widgets/background_image.dart';
+import '../widgets/styled_form_field.dart';
 
 class AddBallScreen extends ConsumerStatefulWidget {
   const AddBallScreen({super.key});
@@ -141,16 +142,19 @@ class _AddBallScreenState extends ConsumerState<AddBallScreen> {
                 ),
               ),
             )
-          else
+          else ...[
+            TextButton(
+              onPressed: () => context.go('/'),
+              child: const Text('CANCEL'),
+            ),
             TextButton(
               onPressed: _saveBall,
               child: const Text('SAVE'),
             ),
+          ],
         ],
       ),
       body: BackgroundImage(
-        opacity: 0.12,
-        overlayOpacity: 0.4,
         child: Form(
           key: _formKey,
           child: ListView(
@@ -190,12 +194,9 @@ class _AddBallScreenState extends ConsumerState<AddBallScreen> {
             const SizedBox(height: 24),
 
             // Name (required)
-            TextFormField(
+            StyledFormField(
               controller: _nameController,
-              decoration: const InputDecoration(
-                labelText: 'Ball Name *',
-                border: OutlineInputBorder(),
-              ),
+              labelText: 'Ball Name *',
               validator: (value) {
                 if (value == null || value.trim().isEmpty) {
                   return 'Name is required';
@@ -206,22 +207,16 @@ class _AddBallScreenState extends ConsumerState<AddBallScreen> {
             const SizedBox(height: 16),
 
             // Brand
-            TextFormField(
+            StyledFormField(
               controller: _brandController,
-              decoration: const InputDecoration(
-                labelText: 'Brand',
-                border: OutlineInputBorder(),
-              ),
+              labelText: 'Brand',
             ),
             const SizedBox(height: 16),
 
             // Weight
-            DropdownButtonFormField<double>(
+            StyledDropdownFormField<double>(
               value: _selectedWeight,
-              decoration: const InputDecoration(
-                labelText: 'Weight (lbs)',
-                border: OutlineInputBorder(),
-              ),
+              labelText: 'Weight (lbs)',
               items: AppConstants.weightOptions.map((weight) {
                 return DropdownMenuItem(
                   value: weight,
@@ -237,12 +232,9 @@ class _AddBallScreenState extends ConsumerState<AddBallScreen> {
             const SizedBox(height: 16),
 
             // Coverstock
-            DropdownButtonFormField<String>(
+            StyledDropdownFormField<String>(
               value: _selectedCoverstock,
-              decoration: const InputDecoration(
-                labelText: 'Coverstock',
-                border: OutlineInputBorder(),
-              ),
+              labelText: 'Coverstock',
               items: AppConstants.coverstockTypes.map((type) {
                 return DropdownMenuItem(
                   value: type,
@@ -258,155 +250,129 @@ class _AddBallScreenState extends ConsumerState<AddBallScreen> {
             const SizedBox(height: 16),
 
             // Factory Finish
-            TextFormField(
+            StyledFormField(
               controller: _factoryFinishController,
-              decoration: const InputDecoration(
-                labelText: 'Factory Finish',
-                hintText: 'e.g., 1500 polished',
-                border: OutlineInputBorder(),
-              ),
+              labelText: 'Factory Finish',
+              hintText: 'e.g., 1500 polished',
             ),
             const SizedBox(height: 16),
 
             // Serial Number
-            TextFormField(
+            StyledFormField(
               controller: _serialController,
-              decoration: const InputDecoration(
-                labelText: 'Serial Number',
-                border: OutlineInputBorder(),
-              ),
+              labelText: 'Serial Number',
             ),
             const SizedBox(height: 24),
 
             // Advanced Specs (collapsible)
-            ExpansionTile(
-              title: const Text('Advanced Specifications'),
-              initiallyExpanded: _showAdvancedSpecs,
-              onExpansionChanged: (expanded) {
-                setState(() {
-                  _showAdvancedSpecs = expanded;
-                });
-              },
-              children: [
-                Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Column(
-                    children: [
-                      TextFormField(
-                        controller: _rgFactoryController,
-                        decoration: const InputDecoration(
+            Card(
+              child: ExpansionTile(
+                title: const Text('Advanced Specifications'),
+                initiallyExpanded: _showAdvancedSpecs,
+                onExpansionChanged: (expanded) {
+                  setState(() {
+                    _showAdvancedSpecs = expanded;
+                  });
+                },
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Column(
+                      children: [
+                        StyledFormField(
+                          controller: _rgFactoryController,
                           labelText: 'RG (Factory)',
-                          border: OutlineInputBorder(),
+                          keyboardType: const TextInputType.numberWithOptions(decimal: true),
                         ),
-                        keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                      ),
-                      const SizedBox(height: 16),
-                      TextFormField(
-                        controller: _diffFactoryController,
-                        decoration: const InputDecoration(
+                        const SizedBox(height: 16),
+                        StyledFormField(
+                          controller: _diffFactoryController,
                           labelText: 'Differential (Factory)',
-                          border: OutlineInputBorder(),
+                          keyboardType: const TextInputType.numberWithOptions(decimal: true),
                         ),
-                        keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                      ),
-                      const SizedBox(height: 16),
-                      TextFormField(
-                        controller: _rgAfterController,
-                        decoration: const InputDecoration(
+                        const SizedBox(height: 16),
+                        StyledFormField(
+                          controller: _rgAfterController,
                           labelText: 'RG (After Drilling)',
-                          border: OutlineInputBorder(),
+                          keyboardType: const TextInputType.numberWithOptions(decimal: true),
                         ),
-                        keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                      ),
-                      const SizedBox(height: 16),
-                      TextFormField(
-                        controller: _diffAfterController,
-                        decoration: const InputDecoration(
+                        const SizedBox(height: 16),
+                        StyledFormField(
+                          controller: _diffAfterController,
                           labelText: 'Differential (After Drilling)',
-                          border: OutlineInputBorder(),
+                          keyboardType: const TextInputType.numberWithOptions(decimal: true),
                         ),
-                        keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
             const SizedBox(height: 8),
 
             // PAP Configuration (collapsible)
-            ExpansionTile(
-              title: const Text('PAP Configuration'),
-              initiallyExpanded: _showPapConfig,
-              onExpansionChanged: (expanded) {
-                setState(() {
-                  _showPapConfig = expanded;
-                });
-              },
-              children: [
-                Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Column(
-                    children: [
-                      TextFormField(
-                        controller: _papOverController,
-                        decoration: const InputDecoration(
+            Card(
+              child: ExpansionTile(
+                title: const Text('PAP Configuration'),
+                initiallyExpanded: _showPapConfig,
+                onExpansionChanged: (expanded) {
+                  setState(() {
+                    _showPapConfig = expanded;
+                  });
+                },
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Column(
+                      children: [
+                        StyledFormField(
+                          controller: _papOverController,
                           labelText: 'PAP Over',
-                          border: OutlineInputBorder(),
+                          keyboardType: const TextInputType.numberWithOptions(decimal: true),
                         ),
-                        keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                      ),
-                      const SizedBox(height: 16),
-                      TextFormField(
-                        controller: _papUpController,
-                        decoration: const InputDecoration(
+                        const SizedBox(height: 16),
+                        StyledFormField(
+                          controller: _papUpController,
                           labelText: 'PAP Up',
-                          border: OutlineInputBorder(),
+                          keyboardType: const TextInputType.numberWithOptions(decimal: true),
                         ),
-                        keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                      ),
-                      const SizedBox(height: 16),
-                      DropdownButtonFormField<String>(
-                        value: _selectedPapUnit,
-                        decoration: const InputDecoration(
+                        const SizedBox(height: 16),
+                        StyledDropdownFormField<String>(
+                          value: _selectedPapUnit,
                           labelText: 'PAP Unit',
-                          border: OutlineInputBorder(),
+                          items: AppConstants.papUnits.map((unit) {
+                            return DropdownMenuItem(
+                              value: unit,
+                              child: Text(unit),
+                            );
+                          }).toList(),
+                          onChanged: (value) {
+                            setState(() {
+                              _selectedPapUnit = value!;
+                            });
+                          },
                         ),
-                        items: AppConstants.papUnits.map((unit) {
-                          return DropdownMenuItem(
-                            value: unit,
-                            child: Text(unit),
-                          );
-                        }).toList(),
-                        onChanged: (value) {
-                          setState(() {
-                            _selectedPapUnit = value!;
-                          });
-                        },
-                      ),
-                      const SizedBox(height: 16),
-                      DropdownButtonFormField<String>(
-                        value: _selectedPapHand,
-                        decoration: const InputDecoration(
+                        const SizedBox(height: 16),
+                        StyledDropdownFormField<String>(
+                          value: _selectedPapHand,
                           labelText: 'PAP Hand',
-                          border: OutlineInputBorder(),
+                          items: AppConstants.papHands.map((hand) {
+                            return DropdownMenuItem(
+                              value: hand,
+                              child: Text(hand),
+                            );
+                          }).toList(),
+                          onChanged: (value) {
+                            setState(() {
+                              _selectedPapHand = value;
+                            });
+                          },
                         ),
-                        items: AppConstants.papHands.map((hand) {
-                          return DropdownMenuItem(
-                            value: hand,
-                            child: Text(hand),
-                          );
-                        }).toList(),
-                        onChanged: (value) {
-                          setState(() {
-                            _selectedPapHand = value;
-                          });
-                        },
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
             const SizedBox(height: 32),
           ],

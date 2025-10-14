@@ -7,19 +7,23 @@ import 'package:flutter/foundation.dart' show kIsWeb;
 class BackgroundImage extends StatelessWidget {
   final Widget child;
   final double opacity;
-  final Color overlayColor;
-  final double overlayOpacity;
+  final Color? overlayColor;
+  final double? overlayOpacity;
 
   const BackgroundImage({
     super.key,
     required this.child,
-    this.opacity = 0.15,
-    this.overlayColor = Colors.black,
-    this.overlayOpacity = 0.3,
+    this.opacity = 0.08,
+    this.overlayColor,
+    this.overlayOpacity,
   });
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final effectiveOverlayColor = overlayColor ?? Colors.black;
+    final effectiveOverlayOpacity = overlayOpacity ?? (isDark ? 0.1 : 0.2);
+
     return Stack(
       children: [
         // Background image
@@ -27,10 +31,10 @@ class BackgroundImage extends StatelessWidget {
           child: _buildBackgroundImage(),
         ),
         // Optional overlay for better text readability
-        if (overlayOpacity > 0)
+        if (effectiveOverlayOpacity > 0)
           Positioned.fill(
             child: Container(
-              color: overlayColor.withOpacity(overlayOpacity),
+              color: effectiveOverlayColor.withOpacity(effectiveOverlayOpacity),
             ),
           ),
         // Content
@@ -77,22 +81,26 @@ class CustomBackgroundImage extends StatelessWidget {
   final Widget child;
   final String imagePath;
   final double opacity;
-  final Color overlayColor;
-  final double overlayOpacity;
+  final Color? overlayColor;
+  final double? overlayOpacity;
   final BoxFit fit;
 
   const CustomBackgroundImage({
     super.key,
     required this.child,
     required this.imagePath,
-    this.opacity = 0.15,
-    this.overlayColor = Colors.black,
-    this.overlayOpacity = 0.3,
+    this.opacity = 0.08,
+    this.overlayColor,
+    this.overlayOpacity,
     this.fit = BoxFit.cover,
   });
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final effectiveOverlayColor = overlayColor ?? Colors.black;
+    final effectiveOverlayOpacity = overlayOpacity ?? (isDark ? 0.1 : 0.2);
+
     return Stack(
       children: [
         // Background image
@@ -119,10 +127,10 @@ class CustomBackgroundImage extends StatelessWidget {
           ),
         ),
         // Optional overlay
-        if (overlayOpacity > 0)
+        if (effectiveOverlayOpacity > 0)
           Positioned.fill(
             child: Container(
-              color: overlayColor.withOpacity(overlayOpacity),
+              color: effectiveOverlayColor.withOpacity(effectiveOverlayOpacity),
             ),
           ),
         // Content

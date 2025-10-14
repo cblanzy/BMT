@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../data/providers/providers.dart';
 import '../widgets/background_image.dart';
+import '../widgets/styled_form_field.dart';
 import 'dart:convert';
 import 'dart:html' as html;
 import 'package:file_picker/file_picker.dart';
@@ -301,16 +302,19 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                 ),
               ),
             )
-          else
+          else ...[
+            TextButton(
+              onPressed: () => context.go('/'),
+              child: const Text('CANCEL'),
+            ),
             TextButton(
               onPressed: _saveSettings,
               child: const Text('SAVE'),
             ),
+          ],
         ],
       ),
       body: BackgroundImage(
-        opacity: 0.12,
-        overlayOpacity: 0.4,
         child: Form(
         key: _formKey,
         child: ListView(
@@ -350,13 +354,9 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                           ),
                     ),
                     const SizedBox(height: 16),
-                    TextFormField(
+                    StyledFormField(
                       controller: _deepCleanController,
-                      decoration: const InputDecoration(
-                        labelText: 'Games',
-                        border: OutlineInputBorder(),
-                        suffixText: 'games',
-                      ),
+                      labelText: 'Games',
                       keyboardType: TextInputType.number,
                       validator: _validateNumber,
                     ),
@@ -387,13 +387,9 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                           ),
                     ),
                     const SizedBox(height: 16),
-                    TextFormField(
+                    StyledFormField(
                       controller: _oilExtractController,
-                      decoration: const InputDecoration(
-                        labelText: 'Games',
-                        border: OutlineInputBorder(),
-                        suffixText: 'games',
-                      ),
+                      labelText: 'Games',
                       keyboardType: TextInputType.number,
                       validator: _validateNumber,
                     ),
@@ -426,52 +422,36 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                     const SizedBox(height: 16),
 
                     // Urethane
-                    TextFormField(
+                    StyledFormField(
                       controller: _resurfaceUrethaneController,
-                      decoration: const InputDecoration(
-                        labelText: 'Urethane',
-                        border: OutlineInputBorder(),
-                        suffixText: 'games',
-                      ),
+                      labelText: 'Urethane',
                       keyboardType: TextInputType.number,
                       validator: _validateNumber,
                     ),
                     const SizedBox(height: 16),
 
                     // Reactive Solid
-                    TextFormField(
+                    StyledFormField(
                       controller: _resurfaceReactiveSolidController,
-                      decoration: const InputDecoration(
-                        labelText: 'Reactive Solid',
-                        border: OutlineInputBorder(),
-                        suffixText: 'games',
-                      ),
+                      labelText: 'Reactive Solid',
                       keyboardType: TextInputType.number,
                       validator: _validateNumber,
                     ),
                     const SizedBox(height: 16),
 
                     // Reactive Pearl
-                    TextFormField(
+                    StyledFormField(
                       controller: _resurfaceReactivePearlController,
-                      decoration: const InputDecoration(
-                        labelText: 'Reactive Pearl',
-                        border: OutlineInputBorder(),
-                        suffixText: 'games',
-                      ),
+                      labelText: 'Reactive Pearl',
                       keyboardType: TextInputType.number,
                       validator: _validateNumber,
                     ),
                     const SizedBox(height: 16),
 
                     // Reactive Hybrid
-                    TextFormField(
+                    StyledFormField(
                       controller: _resurfaceReactiveHybridController,
-                      decoration: const InputDecoration(
-                        labelText: 'Reactive Hybrid',
-                        border: OutlineInputBorder(),
-                        suffixText: 'games',
-                      ),
+                      labelText: 'Reactive Hybrid',
                       keyboardType: TextInputType.number,
                       validator: _validateNumber,
                     ),
@@ -497,31 +477,99 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
               style: Theme.of(context).textTheme.titleLarge,
             ),
             const SizedBox(height: 16),
-            OutlinedButton.icon(
-              onPressed: _exportData,
-              icon: const Icon(Icons.download),
-              label: const Text('Export Data'),
-              style: OutlinedButton.styleFrom(
-                minimumSize: const Size(double.infinity, 48),
+            Container(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [Colors.blue[600]!, Colors.blue[400]!],
+                  begin: Alignment.centerLeft,
+                  end: Alignment.centerRight,
+                ),
+                borderRadius: BorderRadius.circular(8),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.blue.withOpacity(0.3),
+                    blurRadius: 8,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
+              ),
+              child: ElevatedButton.icon(
+                onPressed: _exportData,
+                icon: const Icon(Icons.download),
+                label: const Text('Export Data'),
+                style: ElevatedButton.styleFrom(
+                  minimumSize: const Size(double.infinity, 48),
+                  backgroundColor: Colors.transparent,
+                  foregroundColor: Colors.white,
+                  shadowColor: Colors.transparent,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                ),
               ),
             ),
             const SizedBox(height: 12),
-            OutlinedButton.icon(
-              onPressed: _importData,
-              icon: const Icon(Icons.upload),
-              label: const Text('Import Data'),
-              style: OutlinedButton.styleFrom(
-                minimumSize: const Size(double.infinity, 48),
+            Container(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [Colors.green[600]!, Colors.green[400]!],
+                  begin: Alignment.centerLeft,
+                  end: Alignment.centerRight,
+                ),
+                borderRadius: BorderRadius.circular(8),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.green.withOpacity(0.3),
+                    blurRadius: 8,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
+              ),
+              child: ElevatedButton.icon(
+                onPressed: _importData,
+                icon: const Icon(Icons.upload),
+                label: const Text('Import Data'),
+                style: ElevatedButton.styleFrom(
+                  minimumSize: const Size(double.infinity, 48),
+                  backgroundColor: Colors.transparent,
+                  foregroundColor: Colors.white,
+                  shadowColor: Colors.transparent,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                ),
               ),
             ),
             const SizedBox(height: 12),
-            OutlinedButton.icon(
-              onPressed: _showPurgeDialog,
-              icon: const Icon(Icons.delete_forever),
-              label: const Text('Purge All Data'),
-              style: OutlinedButton.styleFrom(
-                foregroundColor: Colors.red,
-                minimumSize: const Size(double.infinity, 48),
+            Container(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [Colors.red[700]!, Colors.red[500]!],
+                  begin: Alignment.centerLeft,
+                  end: Alignment.centerRight,
+                ),
+                borderRadius: BorderRadius.circular(8),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.red.withOpacity(0.3),
+                    blurRadius: 8,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
+              ),
+              child: ElevatedButton.icon(
+                onPressed: _showPurgeDialog,
+                icon: const Icon(Icons.delete_forever),
+                label: const Text('Purge All Data'),
+                style: ElevatedButton.styleFrom(
+                  minimumSize: const Size(double.infinity, 48),
+                  backgroundColor: Colors.transparent,
+                  foregroundColor: Colors.white,
+                  shadowColor: Colors.transparent,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                ),
               ),
             ),
             const SizedBox(height: 16),
