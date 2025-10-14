@@ -170,22 +170,44 @@ class AppDatabase extends _$AppDatabase {
     String? coverstock,
   }) async {
     String key;
+    int fallbackValue;
 
     switch (maintenanceType) {
       case 'deep_clean':
         key = 'defaults.deep_clean_games';
+        fallbackValue = 18;
         break;
       case 'oil_extract':
         key = 'defaults.oil_extract_games';
+        fallbackValue = 70;
         break;
       case 'resurface':
         if (coverstock == null) {
           // Default to reactive_solid if no coverstock specified
           key = 'defaults.resurface_games.reactive_solid';
+          fallbackValue = 70;
         } else {
           // Map coverstock to key format
           final coverstockKey = coverstock.toLowerCase().replaceAll(' ', '_');
           key = 'defaults.resurface_games.$coverstockKey';
+
+          // Set fallback based on coverstock
+          switch (coverstockKey) {
+            case 'urethane':
+              fallbackValue = 90;
+              break;
+            case 'reactive_solid':
+              fallbackValue = 70;
+              break;
+            case 'reactive_pearl':
+              fallbackValue = 80;
+              break;
+            case 'reactive_hybrid':
+              fallbackValue = 80;
+              break;
+            default:
+              fallbackValue = 70;
+          }
         }
         break;
       default:
@@ -193,6 +215,12 @@ class AppDatabase extends _$AppDatabase {
     }
 
     final value = await getSetting(key);
-    return int.parse(value ?? '70'); // Default fallback
+    if (value != null) {
+      return int.parse(value);
+    }
+
+    // If setting doesn't exist, insert the default value and return it
+    await setSetting(key, fallbackValue.toString());
+    return fallbackValue;
   }
 }

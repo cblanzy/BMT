@@ -1,6 +1,7 @@
 import 'package:go_router/go_router.dart';
 import '../screens/home_screen.dart';
 import '../screens/add_ball_screen.dart';
+import '../screens/edit_ball_screen.dart';
 import '../screens/ball_detail_screen.dart';
 import '../screens/settings_screen.dart';
 import '../screens/add_game_log_screen.dart';
@@ -22,6 +23,13 @@ final appRouter = GoRouter(
       builder: (context, state) {
         final id = state.pathParameters['id']!;
         return BallDetailScreen(ballId: id);
+      },
+    ),
+    GoRoute(
+      path: '/ball/:id/edit',
+      builder: (context, state) {
+        final id = state.pathParameters['id']!;
+        return EditBallScreen(ballId: id);
       },
     ),
     GoRoute(

@@ -174,11 +174,7 @@ class _BallDetailWithTabsState extends ConsumerState<_BallDetailWithTabs> with S
           ),
           IconButton(
             icon: const Icon(Icons.edit),
-            onPressed: () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Edit screen coming soon')),
-              );
-            },
+            onPressed: () => context.go('/ball/${widget.ball.ballId}/edit'),
           ),
           IconButton(
             icon: const Icon(Icons.delete),

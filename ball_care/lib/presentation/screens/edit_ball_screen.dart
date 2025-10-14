@@ -1,0 +1,457 @@
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+import 'package:drift/drift.dart' hide Column;
+import '../../core/constants/app_constants.dart';
+import '../../data/database/database.dart';
+import '../../data/providers/providers.dart';
+import '../widgets/background_image.dart';
+import '../widgets/styled_form_field.dart';
+
+class EditBallScreen extends ConsumerStatefulWidget {
+  final String ballId;
+
+  const EditBallScreen({super.key, required this.ballId});
+
+  @override
+  ConsumerState<EditBallScreen> createState() => _EditBallScreenState();
+}
+
+class _EditBallScreenState extends ConsumerState<EditBallScreen> {
+  final _formKey = GlobalKey<FormState>();
+  final _nameController = TextEditingController();
+  final _brandController = TextEditingController();
+  final _factoryFinishController = TextEditingController();
+  final _serialController = TextEditingController();
+  final _rgFactoryController = TextEditingController();
+  final _diffFactoryController = TextEditingController();
+  final _rgAfterController = TextEditingController();
+  final _diffAfterController = TextEditingController();
+  final _papOverController = TextEditingController();
+  final _papUpController = TextEditingController();
+
+  String? _selectedCoverstock;
+  double? _selectedWeight;
+  String _selectedPapUnit = 'in';
+  String? _selectedPapHand;
+  String? _imageData;
+  bool _showAdvancedSpecs = false;
+  bool _showPapConfig = false;
+  bool _isSaving = false;
+  bool _isLoading = true;
+  Ball? _originalBall;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadBallData();
+  }
+
+  @override
+  void dispose() {
+    _nameController.dispose();
+    _brandController.dispose();
+    _factoryFinishController.dispose();
+    _serialController.dispose();
+    _rgFactoryController.dispose();
+    _diffFactoryController.dispose();
+    _rgAfterController.dispose();
+    _diffAfterController.dispose();
+    _papOverController.dispose();
+    _papUpController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _loadBallData() async {
+    try {
+      final ballRepository = ref.read(ballRepositoryProvider);
+      final ball = await ballRepository.watchBallById(widget.ballId).first;
+
+      if (ball == null) {
+        if (mounted) {
+          context.go('/');
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Ball not found')),
+          );
+        }
+        return;
+      }
+
+      setState(() {
+        _originalBall = ball;
+        _nameController.text = ball.name;
+        _brandController.text = ball.brand ?? '';
+        _factoryFinishController.text = ball.factoryFinish ?? '';
+        _serialController.text = ball.serial ?? '';
+        _rgFactoryController.text = ball.rgFactory?.toString() ?? '';
+        _diffFactoryController.text = ball.diffFactory?.toString() ?? '';
+        _rgAfterController.text = ball.rgAfter?.toString() ?? '';
+        _diffAfterController.text = ball.diffAfter?.toString() ?? '';
+        _papOverController.text = ball.papOver?.toString() ?? '';
+        _papUpController.text = ball.papUp?.toString() ?? '';
+        _selectedCoverstock = ball.coverstock;
+        _selectedWeight = ball.weightLb;
+        _selectedPapUnit = ball.papUnit ?? 'in';
+        _selectedPapHand = ball.papHand;
+        _imageData = ball.imageBase64;
+        _showAdvancedSpecs = ball.rgFactory != null || ball.diffFactory != null ||
+                            ball.rgAfter != null || ball.diffAfter != null;
+        _showPapConfig = ball.papOver != null || ball.papUp != null ||
+                        ball.papHand != null;
+        _isLoading = false;
+      });
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error loading ball: $e')),
+        );
+      }
+    }
+  }
+
+  Future<void> _pickImage() async {
+    final imageService = ref.read(imageServiceProvider);
+    final pickedFile = await imageService.pickImage();
+    if (pickedFile != null) {
+      final processedImage = await imageService.processImage(pickedFile);
+      setState(() {
+        _imageData = processedImage;
+      });
+    }
+  }
+
+  Future<void> _saveBall() async {
+    if (!_formKey.currentState!.validate()) {
+      return;
+    }
+
+    if (_originalBall == null) {
+      return;
+    }
+
+    setState(() {
+      _isSaving = true;
+    });
+
+    try {
+      final now = DateTime.now().millisecondsSinceEpoch;
+
+      final brandValue = _brandController.text.trim();
+      final factoryFinishValue = _factoryFinishController.text.trim();
+      final serialValue = _serialController.text.trim();
+
+      final updatedBall = _originalBall!.copyWith(
+        name: _nameController.text.trim(),
+        brand: Value(brandValue.isEmpty ? null : brandValue),
+        coverstock: Value(_selectedCoverstock),
+        factoryFinish: Value(factoryFinishValue.isEmpty ? null : factoryFinishValue),
+        rgFactory: Value(_rgFactoryController.text.trim().isEmpty ? null : double.tryParse(_rgFactoryController.text.trim())),
+        diffFactory: Value(_diffFactoryController.text.trim().isEmpty ? null : double.tryParse(_diffFactoryController.text.trim())),
+        rgAfter: Value(_rgAfterController.text.trim().isEmpty ? null : double.tryParse(_rgAfterController.text.trim())),
+        diffAfter: Value(_diffAfterController.text.trim().isEmpty ? null : double.tryParse(_diffAfterController.text.trim())),
+        papOver: Value(_papOverController.text.trim().isEmpty ? null : double.tryParse(_papOverController.text.trim())),
+        papUp: Value(_papUpController.text.trim().isEmpty ? null : double.tryParse(_papUpController.text.trim())),
+        papUnit: _selectedPapUnit,
+        papHand: Value(_selectedPapHand),
+        weightLb: Value(_selectedWeight),
+        serial: Value(serialValue.isEmpty ? null : serialValue),
+        imageBase64: Value(_imageData),
+        updatedAt: now,
+      );
+
+      final ballRepository = ref.read(ballRepositoryProvider);
+      await ballRepository.updateBall(updatedBall);
+
+      if (mounted) {
+        context.go('/ball/${widget.ballId}');
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Ball updated successfully')),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error updating ball: $e')),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isSaving = false;
+        });
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final imageService = ref.watch(imageServiceProvider);
+
+    if (_isLoading) {
+      return Scaffold(
+        appBar: AppBar(
+          title: const Text('Edit Ball'),
+        ),
+        body: const Center(child: CircularProgressIndicator()),
+      );
+    }
+
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Edit Ball'),
+        actions: [
+          if (_isSaving)
+            const Center(
+              child: Padding(
+                padding: EdgeInsets.all(16.0),
+                child: SizedBox(
+                  width: 20,
+                  height: 20,
+                  child: CircularProgressIndicator(strokeWidth: 2),
+                ),
+              ),
+            )
+          else ...[
+            TextButton(
+              onPressed: () => context.go('/ball/${widget.ballId}'),
+              child: const Text('CANCEL'),
+            ),
+            TextButton(
+              onPressed: _saveBall,
+              child: const Text('SAVE'),
+            ),
+          ],
+        ],
+      ),
+      body: BackgroundImage(
+        child: Form(
+          key: _formKey,
+          child: ListView(
+            padding: const EdgeInsets.all(16),
+            children: [
+            // Image upload
+            Center(
+              child: GestureDetector(
+                onTap: _pickImage,
+                child: Container(
+                  width: AppConstants.ballImageMediumSize,
+                  height: AppConstants.ballImageMediumSize,
+                  decoration: BoxDecoration(
+                    color: Colors.grey[200],
+                    borderRadius: BorderRadius.circular(AppConstants.cardBorderRadius),
+                    border: Border.all(color: Colors.grey[400]!),
+                  ),
+                  child: _imageData != null
+                      ? ClipRRect(
+                          borderRadius: BorderRadius.circular(AppConstants.cardBorderRadius),
+                          child: Image.memory(
+                            imageService.getDisplayImage(base64Data: _imageData),
+                            fit: BoxFit.cover,
+                          ),
+                        )
+                      : Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(Icons.add_a_photo, size: 40, color: Colors.grey[600]),
+                            const SizedBox(height: 8),
+                            Text('Add Photo', style: TextStyle(color: Colors.grey[600])),
+                          ],
+                        ),
+                ),
+              ),
+            ),
+            const SizedBox(height: 24),
+
+            // Name (required)
+            StyledFormField(
+              controller: _nameController,
+              labelText: 'Ball Name *',
+              validator: (value) {
+                if (value == null || value.trim().isEmpty) {
+                  return 'Name is required';
+                }
+                return null;
+              },
+            ),
+            const SizedBox(height: 16),
+
+            // Brand
+            StyledFormField(
+              controller: _brandController,
+              labelText: 'Brand',
+            ),
+            const SizedBox(height: 16),
+
+            // Weight
+            StyledDropdownFormField<double>(
+              value: _selectedWeight,
+              labelText: 'Weight (lbs)',
+              items: AppConstants.weightOptions.map((weight) {
+                return DropdownMenuItem(
+                  value: weight,
+                  child: Text('$weight lbs'),
+                );
+              }).toList(),
+              onChanged: (value) {
+                setState(() {
+                  _selectedWeight = value;
+                });
+              },
+            ),
+            const SizedBox(height: 16),
+
+            // Coverstock
+            StyledDropdownFormField<String>(
+              value: _selectedCoverstock,
+              labelText: 'Coverstock',
+              items: AppConstants.coverstockTypes.map((type) {
+                return DropdownMenuItem(
+                  value: type,
+                  child: Text(type),
+                );
+              }).toList(),
+              onChanged: (value) {
+                setState(() {
+                  _selectedCoverstock = value;
+                });
+              },
+            ),
+            const SizedBox(height: 16),
+
+            // Factory Finish
+            StyledFormField(
+              controller: _factoryFinishController,
+              labelText: 'Factory Finish',
+              hintText: 'e.g., 1500 polished',
+            ),
+            const SizedBox(height: 16),
+
+            // Serial Number
+            StyledFormField(
+              controller: _serialController,
+              labelText: 'Serial Number',
+            ),
+            const SizedBox(height: 24),
+
+            // Advanced Specs (collapsible)
+            Card(
+              child: ExpansionTile(
+                title: const Text('Advanced Specifications'),
+                initiallyExpanded: _showAdvancedSpecs,
+                onExpansionChanged: (expanded) {
+                  setState(() {
+                    _showAdvancedSpecs = expanded;
+                  });
+                },
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Column(
+                      children: [
+                        StyledFormField(
+                          controller: _rgFactoryController,
+                          labelText: 'RG (Factory)',
+                          keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                        ),
+                        const SizedBox(height: 16),
+                        StyledFormField(
+                          controller: _diffFactoryController,
+                          labelText: 'Differential (Factory)',
+                          keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                        ),
+                        const SizedBox(height: 16),
+                        StyledFormField(
+                          controller: _rgAfterController,
+                          labelText: 'RG (After Drilling)',
+                          keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                        ),
+                        const SizedBox(height: 16),
+                        StyledFormField(
+                          controller: _diffAfterController,
+                          labelText: 'Differential (After Drilling)',
+                          keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 8),
+
+            // PAP Configuration (collapsible)
+            Card(
+              child: ExpansionTile(
+                title: const Text('PAP Configuration'),
+                initiallyExpanded: _showPapConfig,
+                onExpansionChanged: (expanded) {
+                  setState(() {
+                    _showPapConfig = expanded;
+                  });
+                },
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Column(
+                      children: [
+                        StyledFormField(
+                          controller: _papOverController,
+                          labelText: 'PAP Over',
+                          keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                        ),
+                        const SizedBox(height: 16),
+                        StyledFormField(
+                          controller: _papUpController,
+                          labelText: 'PAP Up',
+                          keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                        ),
+                        const SizedBox(height: 16),
+                        StyledDropdownFormField<String>(
+                          value: _selectedPapUnit,
+                          labelText: 'PAP Unit',
+                          items: AppConstants.papUnits.map((unit) {
+                            return DropdownMenuItem(
+                              value: unit,
+                              child: Text(unit),
+                            );
+                          }).toList(),
+                          onChanged: (value) {
+                            setState(() {
+                              _selectedPapUnit = value!;
+                            });
+                          },
+                        ),
+                        const SizedBox(height: 16),
+                        StyledDropdownFormField<String>(
+                          value: _selectedPapHand,
+                          labelText: 'PAP Hand',
+                          items: AppConstants.papHands.map((hand) {
+                            return DropdownMenuItem(
+                              value: hand,
+                              child: Text(hand),
+                            );
+                          }).toList(),
+                          onChanged: (value) {
+                            setState(() {
+                              _selectedPapHand = value;
+                            });
+                          },
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 32),
+          ],
+        ),
+      ),
+    ),
+    );
+  }
+}
