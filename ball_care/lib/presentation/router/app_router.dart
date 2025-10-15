@@ -6,6 +6,8 @@ import '../screens/ball_detail_screen.dart';
 import '../screens/settings_screen.dart';
 import '../screens/add_game_log_screen.dart';
 import '../screens/add_maintenance_screen.dart';
+import '../screens/privacy_policy_screen.dart';
+import '../screens/terms_of_service_screen.dart';
 
 final appRouter = GoRouter(
   initialLocation: '/',
@@ -49,6 +51,14 @@ final appRouter = GoRouter(
     GoRoute(
       path: '/settings',
       builder: (context, state) => const SettingsScreen(),
+    ),
+    GoRoute(
+      path: '/privacy-policy',
+      builder: (context, state) => const PrivacyPolicyScreen(),
+    ),
+    GoRoute(
+      path: '/terms-of-service',
+      builder: (context, state) => const TermsOfServiceScreen(),
     ),
   ],
 );
