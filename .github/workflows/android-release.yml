@@ -53,18 +53,18 @@ jobs:
       - name: Rename APK
         run: |
           mkdir -p release
-          cp ball_care/build/app/outputs/flutter-apk/app-release.apk release/BallCare-${{ steps.version.outputs.version }}.apk
+          cp ball_care/build/app/outputs/flutter-apk/app-release.apk release/BMT-${{ steps.version.outputs.version }}.apk
 
       - name: Create Release
         uses: softprops/action-gh-release@v1
         with:
           tag_name: ${{ github.ref_name }}
-          name: Ball Maintenance Tracker ${{ steps.version.outputs.version }}
+          name: B.M.T. ${{ steps.version.outputs.version }}
           body: |
-            ## Ball Maintenance Tracker v${{ steps.version.outputs.version }}
+            ## B.M.T. v${{ steps.version.outputs.version }}
 
             ### Downloads
-            - **Android APK**: Download `BallCare-${{ steps.version.outputs.version }}.apk` below
+            - **Android APK**: Download `BMT-${{ steps.version.outputs.version }}.apk` below
             - **Web App**: [https://cblanzy.github.io/BMT/](https://cblanzy.github.io/BMT/)
 
             ### Installation

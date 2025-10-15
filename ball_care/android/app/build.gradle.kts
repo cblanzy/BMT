@@ -16,7 +16,7 @@ if (keystorePropertiesFile.exists()) {
 }
 
 android {
-    namespace = "com.example.ball_care"
+    namespace = "com.example.bmt"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
 
@@ -30,10 +30,10 @@ android {
     }
 
     defaultConfig {
-        applicationId = "com.ballcare.tracker"
+        applicationId = "com.bmt.tracker"
         minSdk = 21
         targetSdk = 34
-        versionCode = 15
+        versionCode = 16
         versionName = "1.1.1"
     }
 

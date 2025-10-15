@@ -1,4 +1,4 @@
-package com.example.ball_care
+package com.example.bmt
 
 import io.flutter.embedding.android.FlutterActivity
 

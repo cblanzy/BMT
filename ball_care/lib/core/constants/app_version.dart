@@ -1,3 +1,3 @@
 // App version constant for debugging
 // Increment the thousandths place (.XXX) with each update
-const String appVersion = 'v1.1.015';
+const String appVersion = 'v1.1.016';
