@@ -49117,7 +49117,7 @@ k.push(A.CS(B.Y,B.cZ,new A.axe(c),B.Cx,c.k3))
 if(c.k3)B.b.M(k,A.b([A.cH(c.cy,b,"Default: 70 games",B.bM,"Oil Extract Games",1,new A.axf(c)),B.x],a0))
 k.push(A.CS(B.Y,B.cZ,new A.axg(c),B.CB,c.k4))
 if(c.k4)B.b.M(k,A.b([A.cH(c.db,b,"Default: varies by coverstock",B.bM,"Resurface Games",1,new A.axh(c))],a0))
-return A.kc(a1,A.pf(A.Eq(b,A.y8(A.b([s,B.eF,r,B.x,q,B.x,p,B.x,o,B.x,l,B.x,j,B.eF,i,B.ba,n,B.ba,A.ik(A.Eb(A.b([new A.bg(B.aj,A.c0(k,B.az,B.A,B.K),b)],a0),m,new A.axi(c),B.Cp),b),B.h9],a0),B.aj,b,!1),c.w),0.08,b),b)}}
+return A.kc(a1,A.pf(A.Eq(b,A.y8(A.b([s,B.eF,r,B.x,q,B.x,p,B.x,o,B.x,l,B.x,j,B.eF,i,B.ba,n,B.ba,A.ik(A.Eb(A.b([new A.bg(B.aj,A.c0(k,B.az,B.A,B.K),b)],a0),m,new A.axi(c),B.Cp),b),B.h9],a0),B.aj,b,!1),c.w),0.25,b),b)}}
 A.awX.prototype={
 $1(a){var s=null
 return A.Pa(s,A.c0(A.b([A.nK(!1,s,s,s,!0,s,!0,s,B.qc,s,s,new A.awV(a),!1,s,s,s,s,s,B.Cu,s,s,s),A.nK(!1,s,s,s,!0,s,!0,s,B.qd,s,s,new A.awW(a),!1,s,s,s,s,s,B.Co,s,s,s)],t.p),B.E,B.A,B.aH),B.Cv)},
@@ -49362,7 +49362,7 @@ if(r.at)o.push(B.f_)
 else B.b.M(o,A.b([A.f_(B.dI,new A.axx(r,a),q),A.f_(B.hf,r.garz(),q)],p))
 o=A.jH(o,q,q,B.a_l)
 s=r.Q
-return A.kc(o,A.pf(A.Eq(q,A.y8(A.b([A.nK(!1,B.Y,q,q,!0,q,!0,q,q,q,q,new A.axy(r,a),!1,q,q,q,A.aG(""+A.bc(s)+"-"+B.c.di(B.e.j(A.bl(s)),2,"0")+"-"+B.c.di(B.e.j(A.cB(s)),2,"0"),q,q,q,q,q,q,q,q),q,B.Cw,q,B.ly,q),B.x,A.cH(r.x,q,q,q,"Bowling Center",1,q),B.x,A.cH(r.y,"Use decimals for partial games (e.g., 2.5)",q,B.by,"Number of Games *",1,new A.axz()),B.x,A.cH(r.z,q,q,q,"Notes",3,q)],p),B.aj,q,!1),r.w),0.08,q),q)}}
+return A.kc(o,A.pf(A.Eq(q,A.y8(A.b([A.nK(!1,B.Y,q,q,!0,q,!0,q,q,q,q,new A.axy(r,a),!1,q,q,q,A.aG(""+A.bc(s)+"-"+B.c.di(B.e.j(A.bl(s)),2,"0")+"-"+B.c.di(B.e.j(A.cB(s)),2,"0"),q,q,q,q,q,q,q,q),q,B.Cw,q,B.ly,q),B.x,A.cH(r.x,q,q,q,"Bowling Center",1,q),B.x,A.cH(r.y,"Use decimals for partial games (e.g., 2.5)",q,B.by,"Number of Games *",1,new A.axz()),B.x,A.cH(r.z,q,q,q,"Notes",3,q)],p),B.aj,q,!1),r.w),0.25,q),q)}}
 A.axr.prototype={
 $2(a,b){return a.d>b.d?a:b},
 $S:416}
@@ -49470,7 +49470,7 @@ s=A.qO(r,"Maintenance Type *",new A.axG(q),s,t.Sb)
 r=q.Q
 o=A.b([s,B.x,A.nK(!1,B.Y,p,p,!0,p,!0,p,p,p,p,new A.axH(q,a),!1,p,p,p,A.aG(""+A.bc(r)+"-"+B.c.di(B.e.j(A.bl(r)),2,"0")+"-"+B.c.di(B.e.j(A.cB(r)),2,"0"),p,p,p,p,p,p,p,p),p,B.Cw,p,B.ly,p),B.x,A.cH(q.x,p,p,p,"Notes",3,p),B.x],o)
 if(q.z===B.dz)o.push(A.cH(q.y,p,"500, 1000, 2000, polish",p,"Grit Sequence",1,p))
-return A.kc(n,A.pf(A.Eq(p,A.y8(o,B.aj,p,!1),q.w),0.08,p),p)}}
+return A.kc(n,A.pf(A.Eq(p,A.y8(o,B.aj,p,!1),q.w),0.25,p),p)}}
 A.axC.prototype={
 $0(){this.a.Q=this.b},
 $S:0}
@@ -49927,7 +49927,7 @@ i.push(A.CS(B.Y,B.cZ,new A.aCg(a),B.Cx,a.k3))
 if(a.k3)B.b.M(i,A.b([A.cH(a.cy,a0,"Default: 70 games",B.bM,"Oil Extract Games",1,new A.aCh(a)),B.x],s))
 i.push(A.CS(B.Y,B.cZ,new A.aCi(a),B.CB,a.k4))
 if(a.k4)B.b.M(i,A.b([A.cH(a.db,a0,"Default: varies by coverstock",B.bM,"Resurface Games",1,new A.aCj(a))],s))
-return A.kc(r,A.pf(A.Eq(a0,A.y8(A.b([q,B.eF,p,B.x,o,B.x,n,B.x,m,B.x,j,B.x,h,B.eF,g,B.ba,l,B.ba,A.ik(A.Eb(A.b([new A.bg(B.aj,A.c0(i,B.az,B.A,B.K),a0)],s),k,new A.aCk(a),B.Cp),a0),B.h9],s),B.aj,a0,!1),a.w),0.08,a0),a0)}}
+return A.kc(r,A.pf(A.Eq(a0,A.y8(A.b([q,B.eF,p,B.x,o,B.x,n,B.x,m,B.x,j,B.x,h,B.eF,g,B.ba,l,B.ba,A.ik(A.Eb(A.b([new A.bg(B.aj,A.c0(i,B.az,B.A,B.K),a0)],s),k,new A.aCk(a),B.Cp),a0),B.h9],s),B.aj,a0,!1),a.w),0.25,a0),a0)}}
 A.aBT.prototype={
 $0(){var s,r,q,p,o,n,m,l,k,j,i=null,h=this.a,g=h.p2=this.b
 h.x.scZ(0,g.b)
@@ -50163,7 +50163,7 @@ if(a.e!=null)A.OC(null,null,!0,null,new A.agY(p,o,a),a,null,!0,t.z)
 case 1:return A.t(q,r)}})
 return A.u($async$CM,r)},
 o7(a,b){var s=null,r=b.ez($.p4(),t.FK),q=b.ez($.aNI(),t.jm)===B.hg,p=t.p,o=A.hs(A.b([A.aOP("assets/images/logo.png",s,s,32,s,32),B.BN,B.a_s],p),B.E,B.A,B.aH,0),n=A.kT(q?B.JO:B.JH,s,s,s),m=q?"Switch to Light Mode":"Switch to Dark Mode"
-return A.kc(A.jH(A.b([A.it(s,s,n,s,s,new A.ah0(b),s,s,m),A.it(s,s,B.K0,s,s,new A.ah1(a),s,s,s)],p),s,s,o),A.pf(A.c0(A.b([A.jR(A.vf(new A.ah2(this),r.a6l(),t.P0),1),B.a1b],p),B.E,B.A,B.K),0.08,s),A.c0(A.b([A.aeU(B.K8,"add_game",new A.ah3(this,a,b),"Add Game"),B.x,A.aeU(B.lz,"add_ball",new A.ah4(a),"Add Ball")],p),B.E,B.fJ,B.K))},
+return A.kc(A.jH(A.b([A.it(s,s,n,s,s,new A.ah0(b),s,s,m),A.it(s,s,B.K0,s,s,new A.ah1(a),s,s,s)],p),s,s,o),A.pf(A.c0(A.b([A.jR(A.vf(new A.ah2(this),r.a6l(),t.P0),1),B.a1b],p),B.E,B.A,B.K),0.25,s),A.c0(A.b([A.aeU(B.K8,"add_game",new A.ah3(this,a,b),"Add Game"),B.x,A.aeU(B.lz,"add_ball",new A.ah4(a),"Add Ball")],p),B.E,B.fJ,B.K))},
 aeA(a){var s,r=this,q=null,p=a.cy
 if(p!=null&&p.length!==0)try{p=A.ahp(B.k2.cX(p),new A.agS(r,a),B.dc,60,60)
 return p}catch(s){p=r.Be(a)
@@ -50295,7 +50295,7 @@ if(this.e)s=B.cr
 else{s=A.av(B.d.aD(229.5),B.j.B()>>>16&255,B.j.B()>>>8&255,B.j.B()&255)
 r=A.cd(8)
 r=A.aPz(A.e4(q,A.aPw(this.d,B.Ck),B.w,q,q,new A.cY(s,q,q,r,q,q,B.ag),q,q,q,B.aj,q,q,q),q,B.a4,B.aj,q,B.aM)
-s=r}return A.kc(p,A.pf(A.uU(!0,s,B.Y,!0),0.08,q),q)}}
+s=r}return A.kc(p,A.pf(A.uU(!0,s,B.Y,!0),0.25,q),q)}}
 A.aGw.prototype={
 $0(){var s=this.a
 s.d=this.b
@@ -50579,7 +50579,7 @@ d=A.cd(8)
 d=A.e4(b,A.aTz(!1,B.CC,b,b,b,b,b,b,new A.aIJ(a),b,A.RA(b,b,B.t,b,b,b,b,b,b,B.j,b,B.h8,b,B.t,new A.d0(A.cd(8),B.m),b,b,b,b,b)),B.w,b,b,new A.cY(b,b,f,d,b,b,B.ag),b,b,b,b,b,b,b)
 f=A.CB(B.j,2)
 g=A.cd(8)
-return A.kc(s,A.pf(A.Eq(b,A.y8(A.b([q,B.ba,p,B.eF,n,B.x,o,B.x,m,B.h9,l,B.h9,B.kI,B.x,k,B.x,i,B.BP,e,B.BP,j,B.h9,B.a_p,B.x,d,B.x,A.e4(b,A.aTz(!1,B.CA,b,b,b,b,b,b,new A.aIK(a),b,A.RA(b,b,B.t,b,b,b,b,b,b,B.j,b,B.h8,b,B.t,new A.d0(A.cd(8),B.m),b,b,b,b,b)),B.w,b,b,new A.cY(b,b,f,g,b,b,B.ag),b,b,b,b,b,b,b),B.x],r),B.aj,b,!1),c.w),0.08,b),b)}}
+return A.kc(s,A.pf(A.Eq(b,A.y8(A.b([q,B.ba,p,B.eF,n,B.x,o,B.x,m,B.h9,l,B.h9,B.kI,B.x,k,B.x,i,B.BP,e,B.BP,j,B.h9,B.a_p,B.x,d,B.x,A.e4(b,A.aTz(!1,B.CA,b,b,b,b,b,b,new A.aIK(a),b,A.RA(b,b,B.t,b,b,b,b,b,b,B.j,b,B.h8,b,B.t,new A.d0(A.cd(8),B.m),b,b,b,b,b)),B.w,b,b,new A.cY(b,b,f,g,b,b,B.ag),b,b,b,b,b,b,b),B.x],r),B.aj,b,!1),c.w),0.25,b),b)}}
 A.aIA.prototype={
 $0(){this.a.ax=!0},
 $S:0}
@@ -50645,7 +50645,7 @@ if(this.e)s=B.cr
 else{s=A.av(B.d.aD(229.5),B.j.B()>>>16&255,B.j.B()>>>8&255,B.j.B()&255)
 r=A.cd(8)
 r=A.aPz(A.e4(q,A.aPw(this.d,B.Ck),B.w,q,q,new A.cY(s,q,q,r,q,q,B.ag),q,q,q,B.aj,q,q,q),q,B.a4,B.aj,q,B.aM)
-s=r}return A.kc(p,A.pf(A.uU(!0,s,B.Y,!0),0.08,q),q)}}
+s=r}return A.kc(p,A.pf(A.uU(!0,s,B.Y,!0),0.25,q),q)}}
 A.aJu.prototype={
 $0(){var s=this.a
 s.d=this.b
