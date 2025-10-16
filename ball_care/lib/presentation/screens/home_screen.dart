@@ -1,10 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'dart:convert';
 import '../../data/providers/providers.dart';
 import '../../data/providers/theme_provider.dart';
+import '../../data/models/maintenance_status.dart';
+import '../../data/database/database.dart';
 import '../widgets/version_footer.dart';
 import '../widgets/background_image.dart';
+import '../widgets/progress_ring.dart';
 
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
@@ -82,7 +86,18 @@ class HomeScreen extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('B.M.T.'),
+        title: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Image.asset(
+              'assets/images/logo.png',
+              height: 32,
+              width: 32,
+            ),
+            const SizedBox(width: 12),
+            const Text('B.M.T.'),
+          ],
+        ),
         actions: [
           IconButton(
             icon: Icon(isDark ? Icons.light_mode : Icons.dark_mode),
@@ -144,17 +159,46 @@ class HomeScreen extends ConsumerWidget {
               final ball = balls[index];
               return Card(
                 margin: const EdgeInsets.only(bottom: 12),
-                child: ListTile(
-                  leading: CircleAvatar(
-                    backgroundColor: Colors.blue,
-                    child: Text(
-                      ball.name[0].toUpperCase(),
-                      style: const TextStyle(color: Colors.white),
+                child: InkWell(
+                  onTap: () => context.go('/ball/${ball.ballId}'),
+                  child: Padding(
+                    padding: const EdgeInsets.all(12.0),
+                    child: Row(
+                      children: [
+                        // Ball image
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(8),
+                          child: _buildBallImage(ball),
+                        ),
+                        const SizedBox(width: 12),
+                        // Ball name and brand
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                ball.name,
+                                style: const TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              if (ball.brand != null)
+                                Text(
+                                  ball.brand!,
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    color: Colors.grey[600],
+                                  ),
+                                ),
+                            ],
+                          ),
+                        ),
+                        // Maintenance indicators
+                        _BallMaintenanceIndicators(ballId: ball.ballId),
+                      ],
                     ),
                   ),
-                  title: Text(ball.name),
-                  subtitle: ball.brand != null ? Text(ball.brand!) : null,
-                  onTap: () => context.go('/ball/${ball.ballId}'),
                 ),
               );
             },
@@ -184,6 +228,118 @@ class HomeScreen extends ConsumerWidget {
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildBallImage(ball) {
+    // Try to display image from base64, URL, or local path
+    if (ball.imageBase64 != null && ball.imageBase64!.isNotEmpty) {
+      try {
+        return Image.memory(
+          base64Decode(ball.imageBase64!),
+          width: 60,
+          height: 60,
+          fit: BoxFit.cover,
+          errorBuilder: (context, error, stackTrace) => _buildPlaceholderImage(ball),
+        );
+      } catch (e) {
+        return _buildPlaceholderImage(ball);
+      }
+    } else if (ball.imageUrl != null && ball.imageUrl!.isNotEmpty) {
+      return Image.network(
+        ball.imageUrl!,
+        width: 60,
+        height: 60,
+        fit: BoxFit.cover,
+        errorBuilder: (context, error, stackTrace) => _buildPlaceholderImage(ball),
+      );
+    } else {
+      return _buildPlaceholderImage(ball);
+    }
+  }
+
+  Widget _buildPlaceholderImage(ball) {
+    return Container(
+      width: 60,
+      height: 60,
+      decoration: BoxDecoration(
+        color: Colors.blue,
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Center(
+        child: Text(
+          ball.name[0].toUpperCase(),
+          style: const TextStyle(
+            color: Colors.white,
+            fontSize: 24,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _BallMaintenanceIndicators extends ConsumerWidget {
+  final String ballId;
+
+  const _BallMaintenanceIndicators({required this.ballId});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final ballRepository = ref.watch(ballRepositoryProvider);
+    final gameLogRepository = ref.watch(gameLogRepositoryProvider);
+    final maintenanceRepository = ref.watch(maintenanceRepositoryProvider);
+
+    return StreamBuilder<List<GameLog>>(
+      stream: gameLogRepository.watchLogsForBall(ballId),
+      builder: (context, gameLogsSnapshot) {
+        return StreamBuilder<List<MaintenanceRecord>>(
+          stream: maintenanceRepository.watchMaintenanceForBall(ballId),
+          builder: (context, maintenanceSnapshot) {
+            final logsCount = gameLogsSnapshot.data?.length ?? 0;
+            final maintenanceCount = maintenanceSnapshot.data?.length ?? 0;
+
+            return FutureBuilder<Map<MaintenanceType, MaintenanceStatus>>(
+              key: ValueKey('$logsCount-$maintenanceCount'),
+              future: ballRepository.getAllMaintenanceStatuses(ballId),
+              builder: (context, statusSnapshot) {
+                if (!statusSnapshot.hasData) {
+                  return const SizedBox(width: 120);
+                }
+
+                final statuses = statusSnapshot.data!;
+                final cleanStatus = statuses[MaintenanceType.deepClean];
+                final oilStatus = statuses[MaintenanceType.oilExtract];
+                final resurfaceStatus = statuses[MaintenanceType.resurface];
+
+                return Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    if (cleanStatus != null)
+                      ProgressRing(
+                        status: cleanStatus,
+                        size: 40,
+                      ),
+                    const SizedBox(width: 4),
+                    if (oilStatus != null)
+                      ProgressRing(
+                        status: oilStatus,
+                        size: 40,
+                      ),
+                    const SizedBox(width: 4),
+                    if (resurfaceStatus != null)
+                      ProgressRing(
+                        status: resurfaceStatus,
+                        size: 40,
+                      ),
+                  ],
+                );
+              },
+            );
+          },
+        );
+      },
     );
   }
 }

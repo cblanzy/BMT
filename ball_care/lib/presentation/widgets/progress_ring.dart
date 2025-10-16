@@ -28,6 +28,8 @@ class ProgressRing extends StatelessWidget {
   Widget build(BuildContext context) {
     // Cap progress at 100% for visual display
     final visualProgress = math.min(status.percentage / 100, 1.0);
+    // Scale stroke width based on size
+    final strokeWidth = size < 60 ? 4.0 : AppConstants.progressRingThickness;
 
     return SizedBox(
       width: size,
@@ -41,7 +43,7 @@ class ProgressRing extends StatelessWidget {
             height: size,
             child: CircularProgressIndicator(
               value: 1.0,
-              strokeWidth: AppConstants.progressRingThickness,
+              strokeWidth: strokeWidth,
               backgroundColor: Colors.grey[200],
               valueColor: AlwaysStoppedAnimation<Color>(Colors.grey[200]!),
             ),
@@ -52,31 +54,32 @@ class ProgressRing extends StatelessWidget {
             height: size,
             child: CircularProgressIndicator(
               value: visualProgress,
-              strokeWidth: AppConstants.progressRingThickness,
+              strokeWidth: strokeWidth,
               backgroundColor: Colors.transparent,
               valueColor: AlwaysStoppedAnimation<Color>(_color),
             ),
           ),
-          // Center content
-          Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                status.gamesSince.toStringAsFixed(status.gamesSince.truncateToDouble() == status.gamesSince ? 0 : 1),
-                style: TextStyle(
-                  fontSize: size * 0.2,
-                  fontWeight: FontWeight.bold,
+          // Center content (hide for very small rings)
+          if (size >= 60)
+            Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  status.gamesSince.toStringAsFixed(status.gamesSince.truncateToDouble() == status.gamesSince ? 0 : 1),
+                  style: TextStyle(
+                    fontSize: size * 0.2,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
-              ),
-              Text(
-                '/ ${status.threshold.toStringAsFixed(0)}',
-                style: TextStyle(
-                  fontSize: size * 0.12,
-                  color: Colors.grey[600],
+                Text(
+                  '/ ${status.threshold.toStringAsFixed(0)}',
+                  style: TextStyle(
+                    fontSize: size * 0.12,
+                    color: Colors.grey[600],
+                  ),
                 ),
-              ),
-            ],
-          ),
+              ],
+            ),
         ],
       ),
     );

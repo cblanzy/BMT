@@ -33,7 +33,7 @@ android {
         applicationId = "com.bmt.tracker"
         minSdk = 21
         targetSdk = 34
-        versionCode = 18
+        versionCode = 20
         versionName = "1.1.1"
     }
 
