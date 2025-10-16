@@ -1,11 +1,11 @@
 {
-    "name": "ball_care",
-    "short_name": "ball_care",
+    "name": "BMT",
+    "short_name": "BMT",
     "start_url": ".",
     "display": "standalone",
-    "background_color": "#0175C2",
+    "background_color": "#FFFFFF",
     "theme_color": "#0175C2",
-    "description": "A new Flutter project.",
+    "description": "B.M.T. - Ball Maintenance Tracker",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [

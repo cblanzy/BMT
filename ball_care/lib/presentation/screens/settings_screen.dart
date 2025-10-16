@@ -2,11 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
+import 'dart:convert';
+import 'dart:io';
+import 'package:file_picker/file_picker.dart';
 import '../../data/providers/providers.dart';
 import '../widgets/background_image.dart';
 import '../widgets/styled_form_field.dart';
-import 'dart:convert';
-import 'package:file_picker/file_picker.dart';
 // Conditional imports for web vs mobile
 import 'settings_screen_stub.dart'
     if (dart.library.html) 'settings_screen_web.dart';
@@ -149,14 +150,27 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
           );
         }
       } else {
-        // Mobile/Desktop export - show message
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Export feature is only available on web version'),
-              duration: Duration(seconds: 3),
-            ),
-          );
+        // Mobile/Desktop export using file_picker
+        final timestamp = DateTime.now().millisecondsSinceEpoch;
+        final fileName = 'bmt_backup_$timestamp.json';
+
+        final outputFile = await FilePicker.platform.saveFile(
+          dialogTitle: 'Save BMT Backup',
+          fileName: fileName,
+          type: FileType.custom,
+          allowedExtensions: ['json'],
+        );
+
+        if (outputFile != null) {
+          // Write the file
+          final file = File(outputFile);
+          await file.writeAsString(jsonString);
+
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Data exported successfully')),
+            );
+          }
         }
       }
     } catch (e) {
@@ -210,35 +224,38 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Purge All Data'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text(
-              'WARNING: This will permanently delete ALL data including:',
-              style: TextStyle(fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 8),
-            const Text('• All bowling balls'),
-            const Text('• All game logs'),
-            const Text('• All maintenance records'),
-            const Text('• All settings'),
-            const SizedBox(height: 16),
-            const Text(
-              'This action CANNOT be undone!',
-              style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 16),
-            const Text('Type "delete" to confirm:'),
-            const SizedBox(height: 8),
-            TextField(
-              controller: controller,
-              decoration: const InputDecoration(
-                border: OutlineInputBorder(),
-                hintText: 'Type delete here',
+        content: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                'WARNING: This will permanently delete ALL data including:',
+                style: TextStyle(fontWeight: FontWeight.bold),
               ),
-            ),
-          ],
+              const SizedBox(height: 8),
+              const Text('• All bowling balls'),
+              const Text('• All game logs'),
+              const Text('• All maintenance records'),
+              const Text('• All settings'),
+              const SizedBox(height: 16),
+              const Text(
+                'This action CANNOT be undone!',
+                style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 16),
+              const Text('Type "delete" to confirm:'),
+              const SizedBox(height: 8),
+              TextField(
+                controller: controller,
+                autofocus: false,
+                decoration: const InputDecoration(
+                  border: OutlineInputBorder(),
+                  hintText: 'Type delete here',
+                ),
+              ),
+            ],
+          ),
         ),
         actions: [
           TextButton(
