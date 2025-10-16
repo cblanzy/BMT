@@ -13,7 +13,7 @@ class BackgroundImage extends StatelessWidget {
   const BackgroundImage({
     super.key,
     required this.child,
-    this.opacity = 0.08,
+    this.opacity = 0.25,
     this.overlayColor,
     this.overlayOpacity,
   });
