@@ -42,6 +42,10 @@ jobs:
         working-directory: ./ball_care
         run: flutter build apk --release
 
+      - name: Build AAB (App Bundle for Play Store)
+        working-directory: ./ball_care
+        run: flutter build appbundle --release
+
       - name: Get version from pubspec
         id: version
         working-directory: ./ball_care
@@ -50,10 +54,11 @@ jobs:
           echo "version=$VERSION" >> $GITHUB_OUTPUT
           echo "Building version: $VERSION"
 
-      - name: Rename APK
+      - name: Prepare release artifacts
         run: |
           mkdir -p release
           cp ball_care/build/app/outputs/flutter-apk/app-release.apk release/BMT-${{ steps.version.outputs.version }}.apk
+          cp ball_care/build/app/outputs/bundle/release/app-release.aab release/BMT-${{ steps.version.outputs.version }}.aab
 
       - name: Create Release
         uses: softprops/action-gh-release@v1
@@ -64,26 +69,34 @@ jobs:
             ## B.M.T. v${{ steps.version.outputs.version }}
 
             ### Downloads
-            - **Android APK**: Download `BMT-${{ steps.version.outputs.version }}.apk` below
+            - **Android APK** (Direct Install): `BMT-${{ steps.version.outputs.version }}.apk`
+            - **Android AAB** (Google Play Store): `BMT-${{ steps.version.outputs.version }}.aab`
             - **Web App**: [https://cblanzy.github.io/BMT/](https://cblanzy.github.io/BMT/)
 
-            ### Installation
-            1. Download the APK file
-            2. Enable "Install from Unknown Sources" in your Android settings
-            3. Open the downloaded APK file to install
+            ### Installation Instructions
+
+            **APK (Sideloading)**:
+            1. Download the `.apk` file
+            2. Enable "Install from Unknown Sources" in Android settings
+            3. Open the APK file to install
+
+            **AAB (Google Play Store)**:
+            - This file is for uploading to Google Play Store Console
+            - End users should install from the Play Store once published
 
             ### What's New
             See commit history for details on this release.
           files: |
             release/*.apk
+            release/*.aab
           draft: false
           prerelease: false
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Upload APK artifact
+      - name: Upload build artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: android-apk
-          path: release/*.apk
+          name: android-builds
+          path: release/*
           retention-days: 30
