@@ -151,34 +151,33 @@ class _AddBallScreenState extends ConsumerState<AddBallScreen> {
       );
     }
 
-    // Populate text fields
-    _nameController.text = ball.ballName;
-    if (ball.brandName != null) {
-      _brandController.text = ball.brandName!;
-    }
-    if (ball.factoryFinish != null) {
-      _factoryFinishController.text = ball.factoryFinish!;
-    }
-    if (ball.coreRg != null) {
-      _rgFactoryController.text = ball.coreRg!;
-    }
-    if (ball.coreDiff != null) {
-      _diffFactoryController.text = ball.coreDiff!;
-    }
+    // Populate all fields in setState to trigger rebuild
+    setState(() {
+      // Populate text fields
+      _nameController.text = ball.ballName;
+      if (ball.brandName != null) {
+        _brandController.text = ball.brandName!;
+      }
+      if (ball.factoryFinish != null) {
+        _factoryFinishController.text = ball.factoryFinish!;
+      }
+      if (ball.coreRg != null) {
+        _rgFactoryController.text = ball.coreRg!;
+      }
+      if (ball.coreDiff != null) {
+        _diffFactoryController.text = ball.coreDiff!;
+      }
 
-    // Set coverstock type (mapped)
-    if (ball.mappedCoverstockType != null) {
-      setState(() {
+      // Set coverstock type (mapped)
+      if (ball.mappedCoverstockType != null) {
         _selectedCoverstock = ball.mappedCoverstockType;
-      });
-    }
+      }
 
-    // Set weight
-    if (ball.weightAsDouble != null) {
-      setState(() {
+      // Set weight
+      if (ball.weightAsDouble != null) {
         _selectedWeight = ball.weightAsDouble;
-      });
-    }
+      }
+    });
 
     // Download and set ball image
     if (ball.fullBallImageUrl != null) {
