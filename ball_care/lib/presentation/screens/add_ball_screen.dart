@@ -174,18 +174,17 @@ class _AddBallScreenState extends ConsumerState<AddBallScreen> {
         print('=== POPULATE STEP 3: setState completed');
       }
 
-      // TEMPORARILY DISABLED: Image download to debug grey screen issue
       // Schedule image download AFTER the current frame is rendered
       // This ensures the form is fully visible before we start downloading
-      // if (ball.fullBallImageUrl != null && mounted) {
-      //   print('=== POPULATE STEP 4: Scheduling image download');
-      //   WidgetsBinding.instance.addPostFrameCallback((_) {
-      //     if (mounted) {
-      //       print('=== POPULATE STEP 5: Post-frame callback - starting image download');
-      //       _downloadBallImage(ball.fullBallImageUrl!);
-      //     }
-      //   });
-      // }
+      if (ball.fullBallImageUrl != null && mounted) {
+        print('=== POPULATE STEP 4: Scheduling image download');
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (mounted) {
+            print('=== POPULATE STEP 5: Post-frame callback - starting image download');
+            _downloadBallImage(ball.fullBallImageUrl!);
+          }
+        });
+      }
 
       print('=== POPULATE STEP 6: Showing success snackbar');
       if (mounted) {

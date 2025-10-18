@@ -237,16 +237,17 @@ class _EditBallScreenState extends ConsumerState<EditBallScreen> {
         print('=== EDIT POPULATE: setState completed');
       }
 
-      // TEMPORARILY DISABLED: Image download to debug grey screen issue
       // Schedule image download AFTER the current frame is rendered
       // This ensures the form is fully visible before we start downloading
-      // if (ball.fullBallImageUrl != null && mounted) {
-      //   WidgetsBinding.instance.addPostFrameCallback((_) {
-      //     if (mounted) {
-      //       _downloadBallImage(ball.fullBallImageUrl!);
-      //     }
-      //   });
-      // }
+      if (ball.fullBallImageUrl != null && mounted) {
+        print('=== EDIT POPULATE: Scheduling image download');
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (mounted) {
+            print('=== EDIT POPULATE: Starting image download');
+            _downloadBallImage(ball.fullBallImageUrl!);
+          }
+        });
+      }
 
       print('=== EDIT POPULATE: Showing snackbar');
       if (mounted) {
