@@ -59,18 +59,19 @@ class ImageService {
   }
 
   // Get display image widget data
-  // Returns Uint8List for web (from base64), File for mobile
+  // Returns Uint8List (from base64) or File (from path)
   dynamic getDisplayImage({String? path, String? base64Data}) {
-    if (kIsWeb && base64Data != null && base64Data.isNotEmpty) {
-      // Web: Decode base64 to bytes
+    // First try base64 data (works on both web and mobile)
+    if (base64Data != null && base64Data.isNotEmpty) {
       try {
         return base64Decode(base64Data);
       } catch (e) {
         print('Error decoding base64 image: $e');
         return null;
       }
-    } else if (!kIsWeb && path != null && path.isNotEmpty) {
-      // Mobile: Return File object
+    }
+    // Fall back to file path (mobile only)
+    else if (!kIsWeb && path != null && path.isNotEmpty) {
       return File(path);
     }
     return null;
