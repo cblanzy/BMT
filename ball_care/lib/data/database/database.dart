@@ -143,25 +143,22 @@ class AppDatabase extends _$AppDatabase {
 
     final lastMaintenance = await maintenanceQuery.getSingleOrNull();
 
-    // 2. Determine cutoff date and normalize to start of day
-    int cutoffDate;
+    // 2. Determine cutoff timestamp (preserve time for same-day accuracy)
+    int cutoffTimestamp;
     if (lastMaintenance != null) {
-      // Normalize maintenance date to start of day for fair comparison
-      final maintenanceDateTime = DateTime.fromMillisecondsSinceEpoch(lastMaintenance.date);
-      final normalizedMaintenance = DateTime(maintenanceDateTime.year, maintenanceDateTime.month, maintenanceDateTime.day);
-      cutoffDate = normalizedMaintenance.millisecondsSinceEpoch;
+      // Use exact maintenance timestamp - games after this time count
+      cutoffTimestamp = lastMaintenance.date;
     } else {
-      // Use ball creation date if no maintenance found (normalized to start of day)
+      // Use exact ball creation timestamp if no maintenance found
       final ballQuery = select(balls)..where((tbl) => tbl.ballId.equals(ballId));
       final ball = await ballQuery.getSingle();
-      final createdDateTime = DateTime.fromMillisecondsSinceEpoch(ball.createdAt);
-      final normalizedCreated = DateTime(createdDateTime.year, createdDateTime.month, createdDateTime.day);
-      cutoffDate = normalizedCreated.millisecondsSinceEpoch;
+      cutoffTimestamp = ball.createdAt;
     }
 
-    // 3. Sum all games logged AFTER maintenance (use > not >= to exclude maintenance day)
+    // 3. Sum all games logged AFTER cutoff timestamp
+    // This allows same-day games logged after maintenance to count
     final logsQuery = select(gameLogs)
-      ..where((tbl) => tbl.ballId.equals(ballId) & tbl.date.isBiggerThanValue(cutoffDate));
+      ..where((tbl) => tbl.ballId.equals(ballId) & tbl.date.isBiggerThanValue(cutoffTimestamp));
 
     final logs = await logsQuery.get();
     final totalGames = logs.fold<double>(0.0, (sum, log) => sum + log.games);
