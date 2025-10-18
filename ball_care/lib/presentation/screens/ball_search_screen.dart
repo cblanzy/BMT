@@ -338,7 +338,16 @@ class _BallSearchScreenState extends ConsumerState<BallSearchScreen> {
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: InkWell(
         onTap: () {
-          Navigator.of(context).pop(ball);
+          print('=== SEARCH: Ball card tapped: ${ball.ballName}');
+          // Ensure navigation happens after current frame completes
+          // This prevents image loading or UI updates from interfering
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            print('=== SEARCH: Popping with ball: ${ball.ballName}');
+            if (mounted) {
+              Navigator.of(context).pop(ball);
+              print('=== SEARCH: Pop called successfully');
+            }
+          });
         },
         borderRadius: BorderRadius.circular(12),
         child: Padding(
