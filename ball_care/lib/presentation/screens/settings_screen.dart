@@ -154,18 +154,18 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
         final timestamp = DateTime.now().millisecondsSinceEpoch;
         final fileName = 'bmt_backup_$timestamp.json';
 
+        // Convert JSON string to bytes
+        final bytes = utf8.encode(jsonString);
+
         final outputFile = await FilePicker.platform.saveFile(
           dialogTitle: 'Save BMT Backup',
           fileName: fileName,
           type: FileType.custom,
           allowedExtensions: ['json'],
+          bytes: bytes,  // Required on Android/iOS
         );
 
         if (outputFile != null) {
-          // Write the file
-          final file = File(outputFile);
-          await file.writeAsString(jsonString);
-
           if (mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(content: Text('Data exported successfully')),
