@@ -61,15 +61,15 @@ class _AddMaintenanceScreenState extends ConsumerState<AddMaintenanceScreen> {
       final now = DateTime.now().millisecondsSinceEpoch;
       final uuid = const Uuid();
 
-      // Set time to start of day (00:00:00) for maintenance
-      // This allows same-day games (timestamped at end of day) to count
-      final startOfDay = DateTime(_selectedDate.year, _selectedDate.month, _selectedDate.day, 0, 0, 0);
+      // Use current timestamp (now) to preserve chronological order
+      // User selects date for display, but we use actual creation time for tracking
+      // This ensures games added before maintenance won't count after maintenance is recorded
 
       final maintenance = MaintenanceRecordsCompanion.insert(
         maintId: uuid.v4(),
         ballId: widget.ballId,
         type: _selectedType.value,
-        date: startOfDay.millisecondsSinceEpoch,
+        date: now,
         notes: Value(_notesController.text.trim().isEmpty ? null : _notesController.text.trim()),
         gritSequence: Value(
           _selectedType == MaintenanceType.resurface && _gritSequenceController.text.trim().isNotEmpty

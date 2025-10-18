@@ -113,14 +113,14 @@ class _AddGameLogScreenState extends ConsumerState<AddGameLogScreen> {
       final now = DateTime.now().millisecondsSinceEpoch;
       final uuid = const Uuid();
 
-      // Set time to end of day (23:59:59) to ensure games count properly
-      // This ensures same-day games logged after ball creation/maintenance will be counted
-      final endOfDay = DateTime(_selectedDate.year, _selectedDate.month, _selectedDate.day, 23, 59, 59);
+      // Use current timestamp (now) to preserve chronological order
+      // User selects date for display, but we use actual creation time for tracking
+      // This ensures maintenance added after games will correctly reset the counter
 
       final log = GameLogsCompanion.insert(
         logId: uuid.v4(),
         ballId: widget.ballId,
-        date: endOfDay.millisecondsSinceEpoch,
+        date: now,
         center: Value(_centerController.text.trim().isEmpty ? null : _centerController.text.trim()),
         games: double.parse(_gamesController.text.trim()),
         notes: Value(_notesController.text.trim().isEmpty ? null : _notesController.text.trim()),
