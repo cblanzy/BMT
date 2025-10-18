@@ -7,8 +7,13 @@ import 'package:image_picker/image_picker.dart';
 import '../../core/constants/app_constants.dart';
 import '../../data/database/database.dart';
 import '../../data/providers/providers.dart';
+import '../../data/models/bowwwl_ball.dart';
+import '../../data/services/image_service.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 import '../widgets/background_image.dart';
 import '../widgets/styled_form_field.dart';
+import 'ball_search_screen.dart';
 
 class EditBallScreen extends ConsumerStatefulWidget {
   final String ballId;
@@ -181,7 +186,101 @@ class _EditBallScreenState extends ConsumerState<EditBallScreen> {
     await _showImageSourceDialog();
   }
 
-  Future<void> _saveBall() async {
+  Future<void> _openBallSearch() async {
+    final selectedBall = await Navigator.of(context).push<BowwwlBall>(
+      MaterialPageRoute(
+        builder: (context) => const BallSearchScreen(),
+      ),
+    );
+
+    if (selectedBall != null && mounted) {
+      await _populateFromBowwwlBall(selectedBall);
+    }
+  }
+
+  Future<void> _populateFromBowwwlBall(BowwwlBall ball) async {
+    // Show loading indicator
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Row(
+            children: [
+              SizedBox(
+                width: 20,
+                height: 20,
+                child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+              ),
+              SizedBox(width: 16),
+              Text('Loading ball data...'),
+            ],
+          ),
+          duration: Duration(seconds: 2),
+        ),
+      );
+    }
+
+    // Populate text fields
+    _nameController.text = ball.ballName;
+    if (ball.brandName != null) {
+      _brandController.text = ball.brandName!;
+    }
+    if (ball.factoryFinish != null) {
+      _factoryFinishController.text = ball.factoryFinish!;
+    }
+    if (ball.coreRg != null) {
+      _rgFactoryController.text = ball.coreRg!;
+    }
+    if (ball.coreDiff != null) {
+      _diffFactoryController.text = ball.coreDiff!;
+    }
+
+    // Set coverstock type (mapped)
+    if (ball.mappedCoverstockType != null) {
+      setState(() {
+        _selectedCoverstock = ball.mappedCoverstockType;
+      });
+    }
+
+    // Set weight
+    if (ball.weightAsDouble != null) {
+      setState(() {
+        _selectedWeight = ball.weightAsDouble;
+      });
+    }
+
+    // Download and set ball image
+    if (ball.fullBallImageUrl != null) {
+      try {
+        final imageUrl = ball.fullBallImageUrl!;
+        final response = await http.get(Uri.parse(imageUrl));
+
+        if (response.statusCode == 200) {
+          final base64Image = base64Encode(response.bodyBytes);
+          setState(() {
+            _imageData = base64Image;
+          });
+        }
+      } catch (e) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Failed to download image: $e')),
+          );
+        }
+      }
+    }
+
+    if (mounted) {
+      ScaffoldMessenger.of(context).hideCurrentSnackBar();
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Ball data loaded successfully!'),
+          duration: Duration(seconds: 2),
+        ),
+      );
+    }
+  }
+
+  Future<void> _saveBall() async{
     if (!_formKey.currentState!.validate()) {
       return;
     }
@@ -321,6 +420,31 @@ class _EditBallScreenState extends ConsumerState<EditBallScreen> {
                             Text('Add Photo', style: TextStyle(color: Colors.grey[600])),
                           ],
                         ),
+                ),
+              ),
+            ),
+            const SizedBox(height: 24),
+
+            // Search Ball Database button
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton.icon(
+                onPressed: _openBallSearch,
+                icon: const Icon(Icons.search),
+                label: const Text('Search Ball Database'),
+                style: ElevatedButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  backgroundColor: Theme.of(context).colorScheme.primaryContainer,
+                  foregroundColor: Theme.of(context).colorScheme.onPrimaryContainer,
+                ),
+              ),
+            ),
+            const SizedBox(height: 8),
+            Center(
+              child: Text(
+                'Or update ball details manually below',
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  color: Theme.of(context).colorScheme.outline,
                 ),
               ),
             ),
