@@ -131,83 +131,73 @@ class _AddBallScreenState extends ConsumerState<AddBallScreen> {
   }
 
   Future<void> _populateFromBowwwlBall(BowwwlBall ball) async {
-    // Show loading indicator
-    if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Row(
-            children: [
-              SizedBox(
-                width: 20,
-                height: 20,
-                child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
-              ),
-              SizedBox(width: 16),
-              Text('Loading ball data...'),
-            ],
+    try {
+      // Populate all fields in setState to trigger rebuild
+      if (mounted) {
+        setState(() {
+          // Populate text fields
+          _nameController.text = ball.ballName;
+          if (ball.brandName != null) {
+            _brandController.text = ball.brandName!;
+          }
+          if (ball.factoryFinish != null) {
+            _factoryFinishController.text = ball.factoryFinish!;
+          }
+          if (ball.coreRg != null) {
+            _rgFactoryController.text = ball.coreRg!;
+          }
+          if (ball.coreDiff != null) {
+            _diffFactoryController.text = ball.coreDiff!;
+          }
+
+          // Set coverstock type (mapped)
+          if (ball.mappedCoverstockType != null) {
+            _selectedCoverstock = ball.mappedCoverstockType;
+          }
+
+          // Set weight
+          if (ball.weightAsDouble != null) {
+            _selectedWeight = ball.weightAsDouble;
+          }
+        });
+      }
+
+      // Download and set ball image
+      if (ball.fullBallImageUrl != null && mounted) {
+        try {
+          final imageUrl = ball.fullBallImageUrl!;
+          final response = await http.get(Uri.parse(imageUrl));
+
+          if (response.statusCode == 200 && mounted) {
+            final base64Image = base64Encode(response.bodyBytes);
+            setState(() {
+              _imageData = base64Image;
+            });
+          }
+        } catch (e) {
+          // Image download failed, but continue without image
+          print('Failed to download ball image: $e');
+        }
+      }
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Ball data loaded successfully!'),
+            duration: Duration(seconds: 2),
           ),
-          duration: Duration(seconds: 2),
-        ),
-      );
-    }
-
-    // Populate all fields in setState to trigger rebuild
-    setState(() {
-      // Populate text fields
-      _nameController.text = ball.ballName;
-      if (ball.brandName != null) {
-        _brandController.text = ball.brandName!;
+        );
       }
-      if (ball.factoryFinish != null) {
-        _factoryFinishController.text = ball.factoryFinish!;
+    } catch (e) {
+      print('Error populating ball data: $e');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error loading ball data: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
       }
-      if (ball.coreRg != null) {
-        _rgFactoryController.text = ball.coreRg!;
-      }
-      if (ball.coreDiff != null) {
-        _diffFactoryController.text = ball.coreDiff!;
-      }
-
-      // Set coverstock type (mapped)
-      if (ball.mappedCoverstockType != null) {
-        _selectedCoverstock = ball.mappedCoverstockType;
-      }
-
-      // Set weight
-      if (ball.weightAsDouble != null) {
-        _selectedWeight = ball.weightAsDouble;
-      }
-    });
-
-    // Download and set ball image
-    if (ball.fullBallImageUrl != null) {
-      try {
-        final imageUrl = ball.fullBallImageUrl!;
-        final response = await http.get(Uri.parse(imageUrl));
-
-        if (response.statusCode == 200) {
-          final base64Image = base64Encode(response.bodyBytes);
-          setState(() {
-            _imageData = base64Image;
-          });
-        }
-      } catch (e) {
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Failed to download image: $e')),
-          );
-        }
-      }
-    }
-
-    if (mounted) {
-      ScaffoldMessenger.of(context).hideCurrentSnackBar();
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Ball data loaded successfully!'),
-          duration: Duration(seconds: 2),
-        ),
-      );
     }
   }
 
