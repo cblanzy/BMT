@@ -119,14 +119,18 @@ class _AddBallScreenState extends ConsumerState<AddBallScreen> {
   }
 
   Future<void> _openBallSearch() async {
+    print('Opening ball search...');
     final selectedBall = await Navigator.of(context).push<BowwwlBall>(
       MaterialPageRoute(
         builder: (context) => const BallSearchScreen(),
       ),
     );
 
+    print('Ball search returned: ${selectedBall?.ballName}');
     if (selectedBall != null && mounted) {
+      print('Populating form with ball data...');
       await _populateFromBowwwlBall(selectedBall);
+      print('Form population complete');
     }
   }
 
