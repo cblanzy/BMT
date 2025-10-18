@@ -230,10 +230,14 @@ class _EditBallScreenState extends ConsumerState<EditBallScreen> {
         });
       }
 
-      // Download ball image in background (non-blocking)
+      // Schedule image download AFTER the current frame is rendered
+      // This ensures the form is fully visible before we start downloading
       if (ball.fullBallImageUrl != null && mounted) {
-        // Don't await - let it run in background
-        _downloadBallImage(ball.fullBallImageUrl!);
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (mounted) {
+            _downloadBallImage(ball.fullBallImageUrl!);
+          }
+        });
       }
 
       if (mounted) {
