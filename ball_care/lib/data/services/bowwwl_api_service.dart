@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:http/http.dart' as http;
 import '../models/bowwwl_ball.dart';
 
@@ -10,10 +11,15 @@ class BowwwlApiService {
   // For production, configure CORS on bowwwl.com or use your own backend
   static const String _corsProxy = 'https://corsproxy.io/?';
 
-  /// Get the full URL with CORS proxy for web requests
+  /// Get the full URL with CORS proxy for web requests only
+  /// Mobile apps can access the API directly without CORS issues
   String _getProxiedUrl(String url) {
-    // Use CORS proxy for web builds to bypass browser CORS restrictions
-    return '$_corsProxy${Uri.encodeComponent(url)}';
+    // Only use CORS proxy for web builds
+    // Native mobile apps (Android/iOS) don't have CORS restrictions
+    if (kIsWeb) {
+      return '$_corsProxy${Uri.encodeComponent(url)}';
+    }
+    return url;
   }
 
   /// Fetch balls from the v2 API with pagination and optional filters
