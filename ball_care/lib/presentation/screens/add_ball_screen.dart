@@ -166,24 +166,11 @@ class _AddBallScreenState extends ConsumerState<AddBallScreen> {
         });
       }
 
-      // TODO: Re-enable image download after fixing blank screen issue
-      // Download and set ball image
-      // if (ball.fullBallImageUrl != null && mounted) {
-      //   try {
-      //     final imageUrl = ball.fullBallImageUrl!;
-      //     final response = await http.get(Uri.parse(imageUrl));
-
-      //     if (response.statusCode == 200 && mounted) {
-      //       final base64Image = base64Encode(response.bodyBytes);
-      //       setState(() {
-      //         _imageData = base64Image;
-      //       });
-      //     }
-      //   } catch (e) {
-      //     // Image download failed, but continue without image
-      //     print('Failed to download ball image: $e');
-      //   }
-      // }
+      // Download ball image in background (non-blocking)
+      if (ball.fullBallImageUrl != null && mounted) {
+        // Don't await - let it run in background
+        _downloadBallImage(ball.fullBallImageUrl!);
+      }
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -203,6 +190,28 @@ class _AddBallScreenState extends ConsumerState<AddBallScreen> {
           ),
         );
       }
+    }
+  }
+
+  /// Download ball image in background without blocking UI
+  Future<void> _downloadBallImage(String imageUrl) async {
+    try {
+      final response = await http.get(Uri.parse(imageUrl)).timeout(
+        const Duration(seconds: 10),
+        onTimeout: () {
+          throw Exception('Image download timed out');
+        },
+      );
+
+      if (response.statusCode == 200 && mounted) {
+        final base64Image = base64Encode(response.bodyBytes);
+        setState(() {
+          _imageData = base64Image;
+        });
+      }
+    } catch (e) {
+      // Silently fail - image is optional
+      print('Failed to download ball image: $e');
     }
   }
 
