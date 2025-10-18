@@ -156,6 +156,80 @@ class _BallDetailWithTabsState extends ConsumerState<_BallDetailWithTabs> with S
     }
   }
 
+  Future<void> _showDeleteGameDialog(GameLog log) async {
+    final date = DateTime.fromMillisecondsSinceEpoch(log.date);
+    final formattedDate = DateFormat.yMMMd().format(date);
+
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Delete Game Log'),
+        content: Text('Are you sure you want to delete the game log from $formattedDate (${log.games} games)?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('CANCEL'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            style: TextButton.styleFrom(foregroundColor: Colors.red),
+            child: const Text('DELETE'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed == true && mounted) {
+      final gameLogRepository = ref.read(gameLogRepositoryProvider);
+      await gameLogRepository.deleteLog(log.logId);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Game log deleted')),
+        );
+      }
+    }
+  }
+
+  Future<void> _showDeleteMaintenanceDialog(MaintenanceRecord record) async {
+    final date = DateTime.fromMillisecondsSinceEpoch(record.date);
+    final formattedDate = DateFormat.yMMMd().format(date);
+    final type = MaintenanceType.fromString(record.type);
+    final typeName = MaintenanceStatus(
+      type: type,
+      gamesSince: 0,
+      threshold: 1,
+    ).displayName;
+
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Delete Maintenance Record'),
+        content: Text('Are you sure you want to delete the $typeName record from $formattedDate?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('CANCEL'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            style: TextButton.styleFrom(foregroundColor: Colors.red),
+            child: const Text('DELETE'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed == true && mounted) {
+      final maintenanceRepository = ref.read(maintenanceRepositoryProvider);
+      await maintenanceRepository.deleteMaintenance(record.maintId);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Maintenance record deleted')),
+        );
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final imageService = ref.watch(imageServiceProvider);
@@ -468,9 +542,18 @@ class _BallDetailWithTabsState extends ConsumerState<_BallDetailWithTabs> with S
                       Text(log.notes!, style: TextStyle(color: Colors.grey[600])),
                   ],
                 ),
-                trailing: Chip(
-                  label: Text('${log.games} games'),
-                  backgroundColor: Colors.blue[50],
+                trailing: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Chip(
+                      label: Text('${log.games} games'),
+                      backgroundColor: Colors.blue[50],
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.delete, color: Colors.red),
+                      onPressed: () => _showDeleteGameDialog(log),
+                    ),
+                  ],
                 ),
               ),
             );
@@ -546,6 +629,10 @@ class _BallDetailWithTabsState extends ConsumerState<_BallDetailWithTabs> with S
                       Text('Grit: ${record.gritSequence}',
                            style: TextStyle(color: Colors.grey[600], fontStyle: FontStyle.italic)),
                   ],
+                ),
+                trailing: IconButton(
+                  icon: const Icon(Icons.delete, color: Colors.red),
+                  onPressed: () => _showDeleteMaintenanceDialog(record),
                 ),
               ),
             );
