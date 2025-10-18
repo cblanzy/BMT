@@ -159,9 +159,9 @@ class AppDatabase extends _$AppDatabase {
       cutoffDate = normalizedCreated.millisecondsSinceEpoch;
     }
 
-    // 3. Sum all games where date >= cutoff (IMPORTANT: use >= not >)
+    // 3. Sum all games logged AFTER maintenance (use > not >= to exclude maintenance day)
     final logsQuery = select(gameLogs)
-      ..where((tbl) => tbl.ballId.equals(ballId) & tbl.date.isBiggerOrEqualValue(cutoffDate));
+      ..where((tbl) => tbl.ballId.equals(ballId) & tbl.date.isBiggerThanValue(cutoffDate));
 
     final logs = await logsQuery.get();
     final totalGames = logs.fold<double>(0.0, (sum, log) => sum + log.games);
