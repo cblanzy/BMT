@@ -187,21 +187,27 @@ class _EditBallScreenState extends ConsumerState<EditBallScreen> {
   }
 
   Future<void> _openBallSearch() async {
+    print('=== EDIT: Opening ball search screen');
     final selectedBall = await Navigator.of(context).push<BowwwlBall>(
       MaterialPageRoute(
         builder: (context) => const BallSearchScreen(),
       ),
     );
 
+    print('=== EDIT: Ball search returned: ${selectedBall?.ballName}');
     if (selectedBall != null && mounted) {
+      print('=== EDIT: Calling _populateFromBowwwlBall');
       await _populateFromBowwwlBall(selectedBall);
+      print('=== EDIT: Population completed');
     }
   }
 
   Future<void> _populateFromBowwwlBall(BowwwlBall ball) async {
     try {
+      print('=== EDIT POPULATE: Starting');
       // Populate all fields in setState to trigger rebuild
       if (mounted) {
+        print('=== EDIT POPULATE: Setting state');
         setState(() {
           // Populate text fields
           _nameController.text = ball.ballName;
@@ -228,18 +234,21 @@ class _EditBallScreenState extends ConsumerState<EditBallScreen> {
             _selectedWeight = ball.weightAsDouble;
           }
         });
+        print('=== EDIT POPULATE: setState completed');
       }
 
+      // TEMPORARILY DISABLED: Image download to debug grey screen issue
       // Schedule image download AFTER the current frame is rendered
       // This ensures the form is fully visible before we start downloading
-      if (ball.fullBallImageUrl != null && mounted) {
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          if (mounted) {
-            _downloadBallImage(ball.fullBallImageUrl!);
-          }
-        });
-      }
+      // if (ball.fullBallImageUrl != null && mounted) {
+      //   WidgetsBinding.instance.addPostFrameCallback((_) {
+      //     if (mounted) {
+      //       _downloadBallImage(ball.fullBallImageUrl!);
+      //     }
+      //   });
+      // }
 
+      print('=== EDIT POPULATE: Showing snackbar');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
@@ -248,8 +257,9 @@ class _EditBallScreenState extends ConsumerState<EditBallScreen> {
           ),
         );
       }
+      print('=== EDIT POPULATE: Complete');
     } catch (e) {
-      print('Error populating ball data: $e');
+      print('=== EDIT POPULATE ERROR: $e');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(

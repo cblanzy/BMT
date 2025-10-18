@@ -119,25 +119,32 @@ class _AddBallScreenState extends ConsumerState<AddBallScreen> {
   }
 
   Future<void> _openBallSearch() async {
-    print('Opening ball search...');
+    print('=== STEP 1: Opening ball search screen');
     final selectedBall = await Navigator.of(context).push<BowwwlBall>(
       MaterialPageRoute(
         builder: (context) => const BallSearchScreen(),
       ),
     );
 
-    print('Ball search returned: ${selectedBall?.ballName}');
+    print('=== STEP 2: Ball search returned');
+    print('=== STEP 2a: Selected ball: ${selectedBall?.ballName}');
+    print('=== STEP 2b: Mounted: $mounted');
+    print('=== STEP 2c: Has image URL: ${selectedBall?.fullBallImageUrl != null}');
+
     if (selectedBall != null && mounted) {
-      print('Populating form with ball data...');
+      print('=== STEP 3: Calling _populateFromBowwwlBall');
       await _populateFromBowwwlBall(selectedBall);
-      print('Form population complete');
+      print('=== STEP 4: _populateFromBowwwlBall completed');
     }
   }
 
   Future<void> _populateFromBowwwlBall(BowwwlBall ball) async {
     try {
+      print('=== POPULATE STEP 1: Starting population');
+
       // Populate all fields in setState to trigger rebuild
       if (mounted) {
+        print('=== POPULATE STEP 2: Setting state with ball data');
         setState(() {
           // Populate text fields
           _nameController.text = ball.ballName;
@@ -164,18 +171,23 @@ class _AddBallScreenState extends ConsumerState<AddBallScreen> {
             _selectedWeight = ball.weightAsDouble;
           }
         });
+        print('=== POPULATE STEP 3: setState completed');
       }
 
+      // TEMPORARILY DISABLED: Image download to debug grey screen issue
       // Schedule image download AFTER the current frame is rendered
       // This ensures the form is fully visible before we start downloading
-      if (ball.fullBallImageUrl != null && mounted) {
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          if (mounted) {
-            _downloadBallImage(ball.fullBallImageUrl!);
-          }
-        });
-      }
+      // if (ball.fullBallImageUrl != null && mounted) {
+      //   print('=== POPULATE STEP 4: Scheduling image download');
+      //   WidgetsBinding.instance.addPostFrameCallback((_) {
+      //     if (mounted) {
+      //       print('=== POPULATE STEP 5: Post-frame callback - starting image download');
+      //       _downloadBallImage(ball.fullBallImageUrl!);
+      //     }
+      //   });
+      // }
 
+      print('=== POPULATE STEP 6: Showing success snackbar');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
@@ -184,8 +196,10 @@ class _AddBallScreenState extends ConsumerState<AddBallScreen> {
           ),
         );
       }
+      print('=== POPULATE STEP 7: Population function complete');
     } catch (e) {
-      print('Error populating ball data: $e');
+      print('=== POPULATE ERROR: $e');
+      print('=== POPULATE ERROR STACK: ${StackTrace.current}');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -199,6 +213,7 @@ class _AddBallScreenState extends ConsumerState<AddBallScreen> {
 
   /// Download ball image in background without blocking UI
   Future<void> _downloadBallImage(String imageUrl) async {
+    print('=== IMAGE DOWNLOAD: Starting download from $imageUrl');
     try {
       final response = await http.get(Uri.parse(imageUrl)).timeout(
         const Duration(seconds: 10),
@@ -207,15 +222,18 @@ class _AddBallScreenState extends ConsumerState<AddBallScreen> {
         },
       );
 
+      print('=== IMAGE DOWNLOAD: Response status ${response.statusCode}');
       if (response.statusCode == 200 && mounted) {
+        print('=== IMAGE DOWNLOAD: Encoding image to base64');
         final base64Image = base64Encode(response.bodyBytes);
+        print('=== IMAGE DOWNLOAD: Setting state with image data');
         setState(() {
           _imageData = base64Image;
         });
+        print('=== IMAGE DOWNLOAD: Image set successfully');
       }
     } catch (e) {
-      // Silently fail - image is optional
-      print('Failed to download ball image: $e');
+      print('=== IMAGE DOWNLOAD ERROR: $e');
     }
   }
 
