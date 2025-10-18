@@ -61,11 +61,15 @@ class _AddMaintenanceScreenState extends ConsumerState<AddMaintenanceScreen> {
       final now = DateTime.now().millisecondsSinceEpoch;
       final uuid = const Uuid();
 
+      // Set time to start of day (00:00:00) for maintenance
+      // This allows same-day games (timestamped at end of day) to count
+      final startOfDay = DateTime(_selectedDate.year, _selectedDate.month, _selectedDate.day, 0, 0, 0);
+
       final maintenance = MaintenanceRecordsCompanion.insert(
         maintId: uuid.v4(),
         ballId: widget.ballId,
         type: _selectedType.value,
-        date: _selectedDate.millisecondsSinceEpoch,
+        date: startOfDay.millisecondsSinceEpoch,
         notes: Value(_notesController.text.trim().isEmpty ? null : _notesController.text.trim()),
         gritSequence: Value(
           _selectedType == MaintenanceType.resurface && _gritSequenceController.text.trim().isNotEmpty
