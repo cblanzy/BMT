@@ -42,6 +42,7 @@ class _EditBallScreenState extends ConsumerState<EditBallScreen> {
 
   String? _selectedCoverstock;
   double? _selectedWeight;
+  double? _originalWeight; // Track original weight to detect changes
   String _selectedPapUnit = 'in';
   String? _selectedPapHand;
   String? _imageData;
@@ -111,6 +112,7 @@ class _EditBallScreenState extends ConsumerState<EditBallScreen> {
         _resurfaceGamesController.text = ball.resurfaceGames?.toString() ?? '';
         _selectedCoverstock = ball.coverstock;
         _selectedWeight = ball.weightLb;
+        _originalWeight = ball.weightLb; // Store original weight
         _selectedPapUnit = ball.papUnit ?? 'in';
         _selectedPapHand = ball.papHand;
         _imageData = ball.imageBase64;
@@ -291,6 +293,102 @@ class _EditBallScreenState extends ConsumerState<EditBallScreen> {
     } catch (e) {
       // Silently fail - image is optional
       print('Failed to download ball image: $e');
+    }
+  }
+
+  Future<bool?> _showUpdateSpecsDialog(double newWeight) async {
+    return showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Update Specifications?'),
+        content: Text(
+          'Do you want to update the RG and Differential values from bowwwl.com for ${newWeight.toInt()}lbs?',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('NO'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('UPDATE'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _updateSpecsFromAPI(double weight) async {
+    try {
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Fetching specs from bowwwl.com...'),
+          duration: Duration(seconds: 2),
+        ),
+      );
+
+      final apiService = ref.read(bowwwlApiServiceProvider);
+
+      // Search for this ball by name
+      final results = await apiService.searchBallsByName(
+        _nameController.text,
+      );
+
+      // Filter by brand if available
+      var filtered = results;
+      if (_brandController.text.isNotEmpty) {
+        filtered = results.where((b) =>
+          b.brandName?.toLowerCase() == _brandController.text.toLowerCase()
+        ).toList();
+      }
+
+      // Find entry for this weight
+      final targetWeight = weight.toInt().toString();
+      final match = filtered.where((b) =>
+        b.coreWeight == targetWeight
+      ).firstOrNull;
+
+      if (match == null) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('No specs found for ${weight.toInt()}lbs'),
+              backgroundColor: Colors.orange,
+            ),
+          );
+        }
+        return;
+      }
+
+      // Update RG and Diff fields
+      if (mounted) {
+        setState(() {
+          if (match.coreRg != null && match.coreRg!.isNotEmpty) {
+            _rgFactoryController.text = match.coreRg!;
+          }
+          if (match.coreDiff != null && match.coreDiff!.isNotEmpty) {
+            _diffFactoryController.text = match.coreDiff!;
+          }
+        });
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Specs updated successfully!'),
+            backgroundColor: Colors.green,
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error fetching specs: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
     }
   }
 
@@ -494,7 +592,17 @@ class _EditBallScreenState extends ConsumerState<EditBallScreen> {
                   child: Text('$weight lbs'),
                 );
               }).toList(),
-              onChanged: (value) {
+              onChanged: (value) async {
+                // Detect weight change and prompt to update specs
+                if (_originalWeight != null &&
+                    _originalWeight != value &&
+                    value != null &&
+                    _nameController.text.isNotEmpty) {
+                  final shouldUpdate = await _showUpdateSpecsDialog(value);
+                  if (shouldUpdate == true) {
+                    await _updateSpecsFromAPI(value);
+                  }
+                }
                 setState(() {
                   _selectedWeight = value;
                 });

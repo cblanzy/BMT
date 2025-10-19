@@ -16,8 +16,10 @@ class _BallSearchScreenState extends ConsumerState<BallSearchScreen> {
   final _searchController = TextEditingController();
 
   List<BowwwlBall> _searchResults = [];
+  List<BowwwlBall> _allSearchResults = []; // Store all results before weight filtering
   List<Map<String, dynamic>> _brands = [];
   String? _selectedBrand;
+  double _selectedWeight = 15.0; // Default weight selection
   bool _isLoading = false;
   bool _isInitialLoad = true;
   String? _errorMessage;
@@ -98,8 +100,15 @@ class _BallSearchScreenState extends ConsumerState<BallSearchScreen> {
         }
       }
 
+      // Store all results and filter by selected weight for display
+      final targetWeight = _selectedWeight.toInt().toString();
+      final weightFiltered = results.where((ball) =>
+        ball.coreWeight == targetWeight
+      ).toList();
+
       setState(() {
-        _searchResults = results;
+        _allSearchResults = results; // Keep all results for weight switching
+        _searchResults = weightFiltered; // Display only matching weight
         _isLoading = false;
         _searchProgress = null;
       });
@@ -116,8 +125,21 @@ class _BallSearchScreenState extends ConsumerState<BallSearchScreen> {
     setState(() {
       _searchController.clear();
       _selectedBrand = null;
+      _selectedWeight = 15.0;
     });
     _loadInitialData();
+  }
+
+  void _filterByWeight(double weight) {
+    final targetWeight = weight.toInt().toString();
+    final weightFiltered = _allSearchResults.where((ball) =>
+      ball.coreWeight == targetWeight
+    ).toList();
+
+    setState(() {
+      _selectedWeight = weight;
+      _searchResults = weightFiltered;
+    });
   }
 
   @override
@@ -166,10 +188,11 @@ class _BallSearchScreenState extends ConsumerState<BallSearchScreen> {
                   onSubmitted: (_) => _performSearch(),
                 ),
                 const SizedBox(height: 12),
-                // Brand filter
+                // Brand and Weight filters
                 Row(
                   children: [
                     Expanded(
+                      flex: 2,
                       child: DropdownButtonFormField<String>(
                         value: _selectedBrand,
                         decoration: InputDecoration(
@@ -201,6 +224,35 @@ class _BallSearchScreenState extends ConsumerState<BallSearchScreen> {
                             _selectedBrand = value;
                           });
                           _performSearch();
+                        },
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: DropdownButtonFormField<double>(
+                        value: _selectedWeight,
+                        decoration: InputDecoration(
+                          labelText: 'Weight',
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          filled: true,
+                          fillColor: Theme.of(context).colorScheme.surface,
+                          contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 12,
+                            vertical: 8,
+                          ),
+                        ),
+                        items: [10, 11, 12, 13, 14, 15, 16].map((weight) {
+                          return DropdownMenuItem<double>(
+                            value: weight.toDouble(),
+                            child: Text('${weight}lbs'),
+                          );
+                        }).toList(),
+                        onChanged: (value) {
+                          if (value != null) {
+                            _filterByWeight(value);
+                          }
                         },
                       ),
                     ),
@@ -338,13 +390,29 @@ class _BallSearchScreenState extends ConsumerState<BallSearchScreen> {
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: InkWell(
         onTap: () {
-          print('=== SEARCH: Ball card tapped: ${ball.ballName}');
+          print('=== SEARCH: Ball card tapped: ${ball.ballName} (${_selectedWeight}lbs)');
+
+          // Find the ball entry for the selected weight
+          // This ensures we return specs matching the user's weight selection
+          final targetWeight = _selectedWeight.toInt().toString();
+          final ballsForThisName = _allSearchResults.where((b) =>
+            b.ballName == ball.ballName &&
+            b.brandName == ball.brandName
+          ).toList();
+
+          final matchingWeight = ballsForThisName.where((b) =>
+            b.coreWeight == targetWeight
+          ).firstOrNull ?? ball; // Fallback to original if weight not found
+
+          print('=== SEARCH: Found ball with weight ${matchingWeight.coreWeight}lbs');
+          print('=== SEARCH: RG: ${matchingWeight.coreRg}, Diff: ${matchingWeight.coreDiff}');
+
           // Ensure navigation happens after current frame completes
           // This prevents image loading or UI updates from interfering
           WidgetsBinding.instance.addPostFrameCallback((_) {
-            print('=== SEARCH: Popping with ball: ${ball.ballName}');
+            print('=== SEARCH: Popping with ball: ${matchingWeight.ballName}');
             if (mounted) {
-              Navigator.of(context).pop(ball);
+              Navigator.of(context).pop(matchingWeight);
               print('=== SEARCH: Pop called successfully');
             }
           });

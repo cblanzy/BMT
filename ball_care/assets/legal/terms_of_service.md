@@ -1,45 +1,132 @@
-Effective Date: 10.15.2025
+Terms of Service
 
-1. Acceptance of Terms
 
-By downloading or using Bowling Ball Maintenance Tracker (“the App”), you agree to these Terms of Service. If you do not agree, please do not use the App.
 
-2. Description of Service
+for B.M.T. — Ball Maintenance Tracker
 
-The App allows users to track games and maintenance schedules for their bowling balls. Users may also view general bowling ball data, such as specifications, coverstock types, or factory finishes.
+Effective Date: 10.18.2025
 
-3. Ownership and Content
 
-All intellectual property within the App, including text, code, logos, and design, belongs to the developer (Craig Blanzy) unless otherwise stated.
-Bowling ball names, images, and specifications may be owned by their respective manufacturers or licensed data providers. Any such data is used with permission or under applicable fair-use principles for identification purposes.
 
-4. User Responsibilities
+1\. Acceptance of Terms
 
-You agree to use the App lawfully and not to:
 
-Copy or redistribute the App’s code or database without permission.
+
+By downloading, installing, or using B.M.T. — Ball Maintenance Tracker (“the App”), you agree to these Terms of Service (“Terms”). If you do not agree, please do not use the App.
+
+
+
+2\. Description of Service
+
+
+
+B.M.T. allows bowlers to log their bowling ball usage and maintenance history, set reminders for resurfacing and oil extraction, and view general information about bowling balls, including model names, coverstocks, and factory finishes.
+
+The App operates primarily offline and may optionally display licensed data from third-party sources.
+
+
+
+3\. Ownership and Content
+
+
+
+All original intellectual property within the App, including code, text, logos, and design, belongs to the developer (Craig Blanzy) unless otherwise stated.
+
+
+
+Bowling ball names, images, and specifications may be owned by their respective manufacturers or licensed data providers, including bowwwl.com, and are used with permission or under applicable fair-use principles for identification purposes.
+
+
+
+All trademarks, product names, and company names or logos are the property of their respective owners.
+
+
+
+4\. Third-Party Data and Content
+
+
+
+The App includes certain bowling ball information and images sourced from bowwwl.com, used with permission from the site’s owner.
+
+All rights to that data and media remain with bowwwl.com and/or the respective manufacturers or licensors.
+
+
+
+The developer of B.M.T. makes no claims of ownership over third-party data or images and provides them for informational purposes only.
+
+
+
+While every effort is made to ensure accuracy, B.M.T. does not guarantee the completeness, reliability, or timeliness of any third-party content.
+
+If you believe any information is inaccurate or should be removed, please contact the developer at cblanzy@gmail.com
+
+.
+
+
+
+5\. User Responsibilities
+
+
+
+You agree not to:
+
+
+
+Copy, redistribute, or modify the App’s code or database without written permission.
+
+
 
 Misuse, reverse-engineer, or attempt unauthorized access to the App or its systems.
 
-Submit false or misleading data.
 
-5. Advertising and Donations
 
-The App may display third-party advertisements. Revenue from ads helps support development. Users may optionally make a donation or in-app purchase to remove ads. Donations are voluntary and non-refundable.
+Submit false or misleading information.
 
-6. No Warranty
 
-The App is provided “as is” without any warranty of any kind. The developer makes no guarantees about the accuracy or completeness of the data provided.
 
-7. Limitation of Liability
+6\. Advertising and Donations
 
-In no event shall the developer be liable for any damages arising from the use or inability to use the App, including loss of data or profits.
 
-8. Modifications to the Terms
 
-The developer reserves the right to modify these Terms at any time. Updates will be posted in the App or on the distribution page, with an updated effective date.
+The App may display third-party advertisements. Revenue from ads helps support continued development.
 
-9. Contact Information
+Users may optionally make an in-app purchase or donation to remove ads.
 
-For questions about these Terms, contact:
-bmtappinfo@gmail.com
+All such transactions are processed through Google Play or the App Store and are non-refundable.
+
+
+
+7\. No Warranty
+
+
+
+The App is provided “as is” without any warranty of any kind, express or implied.
+
+The developer makes no guarantees regarding the accuracy or completeness of any data displayed, including information from bowwwl.com or other external sources.
+
+
+
+8\. Limitation of Liability
+
+
+
+In no event shall the developer be liable for any damages arising from the use or inability to use the App, including but not limited to loss of data or profits, even if advised of the possibility of such damages.
+
+
+
+9\. Modifications to the Terms
+
+
+
+The developer reserves the right to modify these Terms at any time. Updates will be posted in the App or on the official B.M.T. website (or GitHub Pages site), with a revised effective date.
+
+
+
+10\. Contact Information
+
+
+
+For any questions regarding these Terms or the use of third-party data, please contact:
+
+📧 cblanzy@gmail.com
+

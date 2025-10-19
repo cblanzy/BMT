@@ -5,6 +5,7 @@ import '../repositories/game_log_repository.dart';
 import '../repositories/maintenance_repository.dart';
 import '../services/image_service.dart';
 import '../services/data_management_service.dart';
+import '../services/bowwwl_api_service.dart';
 
 // Database provider
 final databaseProvider = Provider<AppDatabase>((ref) {
@@ -35,4 +36,8 @@ final imageServiceProvider = Provider<ImageService>((ref) {
 final dataManagementServiceProvider = Provider<DataManagementService>((ref) {
   final db = ref.watch(databaseProvider);
   return DataManagementService(db);
+});
+
+final bowwwlApiServiceProvider = Provider<BowwwlApiService>((ref) {
+  return BowwwlApiService();
 });
