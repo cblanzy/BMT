@@ -49,8 +49,15 @@ class _BallSearchScreenState extends ConsumerState<BallSearchScreen> {
       final balls = await _apiService.fetchBalls(page: 0);
       final brands = await _apiService.fetchBrands();
 
+      // Filter by default weight (15 lbs)
+      final targetWeight = _selectedWeight.toInt().toString();
+      final weightFiltered = balls.where((ball) =>
+        ball.coreWeight == targetWeight
+      ).toList();
+
       setState(() {
-        _searchResults = balls;
+        _allSearchResults = balls; // Store all results for weight switching
+        _searchResults = weightFiltered; // Display only matching weight
         _brands = brands;
         _isLoading = false;
         _isInitialLoad = false;
